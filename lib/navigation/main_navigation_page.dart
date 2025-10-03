@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:cs222_final/features/home/presentation/pages/home_page.dart';
-import 'package:cs222_final/features/messages/presentation/pages/messages_page.dart';
-import 'package:cs222_final/features/notifications/presentation/pages/notifications_page.dart';
-import 'package:cs222_final/features/posts/presentation/pages/posts_page.dart';
-import 'package:cs222_final/features/profile/presentation/pages/profile_page.dart';
+import 'package:skill_sharing/features/home/presentation/pages/home_page.dart';
+import 'package:skill_sharing/features/messages/presentation/pages/messages_page.dart';
+import 'package:skill_sharing/features/notifications/presentation/pages/notifications_page.dart';
+import 'package:skill_sharing/features/posts/presentation/pages/posts_page.dart';
+import 'package:skill_sharing/features/profile/presentation/pages/profile_page.dart';
 
 class MainNavigationPage extends StatefulWidget {
   const MainNavigationPage({super.key});
@@ -19,7 +19,7 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
   static const List<Widget> _widgetOptions = <Widget>[
     HomePage(),
     PostsPage(),
-    ProfilePage(),
+    ProfilePage(userId: '147'),
     NotificationsPage(),
     MessagesPage(),
   ];

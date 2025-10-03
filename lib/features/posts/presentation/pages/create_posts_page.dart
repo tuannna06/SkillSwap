@@ -1,0 +1,302 @@
+import 'package:flutter/material.dart';
+
+class CreatePostPage extends StatefulWidget {
+  const CreatePostPage({super.key});
+
+  @override
+  State<CreatePostPage> createState() => _CreatePostPageState();
+}
+
+class _CreatePostPageState extends State<CreatePostPage> {
+  bool isRequest = true;
+  final titleController = TextEditingController();
+  final descriptionController = TextEditingController();
+  final locationController = TextEditingController();
+  final skillsController = TextEditingController();
+  String? selectedCategory;
+
+  final List<String> categories = [
+    'Programming',
+    'Design',
+    'Academic',
+    'Manual Labor',
+    'Sports',
+    'Other'
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.grey[100],
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        leading: IconButton(
+          onPressed: () => Navigator.pop(context),
+          icon: Icon(Icons.close, color: Colors.black),
+        ),
+        title: Text('New Post', style: TextStyle(fontWeight: FontWeight.bold)),
+        centerTitle: true,
+      ),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 10),
+          child: Form(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                //Title
+                Text(
+                  'Title',
+                  style: TextStyle(color: Colors.grey, fontSize: 18),
+                ),
+                TextFormField(
+                  controller: titleController,
+                  decoration: InputDecoration(
+                    hintText: 'What do you need/offer?',
+                    hintStyle: TextStyle(color: Colors.grey[500]),
+                    filled: true,
+                    fillColor: Colors.white,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: BorderSide(color: Colors.grey[300]!),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: BorderSide(color: Colors.grey[300]!),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: BorderSide(color: Colors.blue),
+                    ),
+                    contentPadding: EdgeInsets.all(16),
+                  ),
+                ),
+                //Type
+                SizedBox(height: 20),
+                Text(
+                  'Type',
+                  style: TextStyle(color: Colors.grey, fontSize: 18),
+                  textAlign: TextAlign.right,
+                ),
+                Row(
+                  children: [
+                    Expanded(child: _buildToggleButton('Request', isRequest)),
+                    SizedBox(width: 12),
+                    Expanded(child: _buildToggleButton('Offer', !isRequest)),
+                  ],
+                ),
+                //Category
+                SizedBox(height: 20),
+                Text(
+                  'Category',
+                  style: TextStyle(color: Colors.grey, fontSize: 18),
+                ),
+
+                //drop out selection
+                SizedBox(
+                  child: DropdownMenu<String>(
+                    width: double.infinity,
+                    label: Text('Select a category'),
+                    dropdownMenuEntries: categories.map((category) => DropdownMenuEntry(value: category, label: category)).toList(),
+                    onSelected: (String? value) {
+                      setState(() {
+                        selectedCategory = value;
+                      });
+                    },
+                  ),
+                ),
+
+                //Description
+                SizedBox(height: 20),
+                Text(
+                  'Description',
+                  style: TextStyle(color: Colors.grey, fontSize: 18),
+                ),
+                //text box
+                TextFormField(
+                  maxLines: null,
+                  minLines: 4,
+                  controller: descriptionController,
+                  decoration: InputDecoration(
+                    hintText:
+                        isRequest
+                            ? 'Describe your request in detail...'
+                            : 'Describe your offer in detail...',
+                    hintStyle: TextStyle(color: Colors.grey[500]),
+                    filled: true,
+                    fillColor: Colors.white,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: BorderSide(color: Colors.grey[300]!),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: BorderSide(color: Colors.grey[300]!),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: BorderSide(color: Colors.blue),
+                    ),
+                    contentPadding: EdgeInsets.all(16),
+                  ),
+                ),
+                //Needed Skills
+                SizedBox(height: 20),
+                Text(
+                  isRequest ? 'Needed Skills' : 'Offer Skills',
+                  style: TextStyle(color: Colors.grey, fontSize: 18),
+                ),
+                //text box
+                TextFormField(
+                  maxLines: null,
+                  minLines: 4,
+                  controller: descriptionController,
+                  decoration: InputDecoration(
+                    hintText:
+                        isRequest
+                            ? 'List skills you need'
+                            : 'List skills you offer',
+                    hintStyle: TextStyle(color: Colors.grey[500]),
+                    filled: true,
+                    fillColor: Colors.white,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: BorderSide(color: Colors.grey[300]!),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: BorderSide(color: Colors.grey[300]!),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: BorderSide(color: Colors.blue),
+                    ),
+                    contentPadding: EdgeInsets.all(16),
+                  ),
+                ),
+                //Location
+                SizedBox(height: 20),
+                Text(
+                  'Location',
+                  style: TextStyle(color: Colors.grey, fontSize: 18),
+                ),
+                TextFormField(
+                  controller: locationController,
+                  decoration: InputDecoration(
+                    hintText: "e.g., 'Chandler, AZ'",
+                    hintStyle: TextStyle(color: Colors.grey[500]),
+                    filled: true,
+                    fillColor: Colors.white,
+                    suffixIcon: Icon(
+                      Icons.keyboard_arrow_down,
+                      color: Colors.grey,
+                    ),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: BorderSide(color: Colors.grey[300]!),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: BorderSide(color: Colors.grey[300]!),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: BorderSide(color: Colors.blue),
+                    ),
+                    contentPadding: EdgeInsets.all(16),
+                  ),
+                ),
+
+                //Exchange Requirement
+                SizedBox(height: 20),
+                Text(
+                  'Exchange Requirements',
+                  style: TextStyle(color: Colors.grey, fontSize: 18),
+                ),
+
+                TextFormField(
+                  maxLines: null,
+                  minLines: 4,
+                  decoration: InputDecoration(
+                    hintText:
+                        isRequest
+                            ? 'Describe what you can offer in return...'
+                            : 'Describe what you want to get in return',
+                    hintStyle: TextStyle(color: Colors.grey[500]),
+                    filled: true,
+                    fillColor: Colors.white,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: BorderSide(color: Colors.grey[300]!),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: BorderSide(color: Colors.grey[300]!),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: BorderSide(color: Colors.blue),
+                    ),
+                    contentPadding: EdgeInsets.all(16),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+      bottomNavigationBar: Container(
+        padding: EdgeInsets.all(16),
+        color: Colors.white,
+        child: ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: const Color.fromARGB(255, 3, 127, 229),
+            minimumSize: Size(double.infinity, 50),
+          ),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          child: Text(
+            'Post',
+            style: TextStyle(
+              fontSize: 18,
+              color: Colors.white,
+              fontWeight: FontWeight.normal,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildToggleButton(String text, bool isSelected) {
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          isRequest = (text == 'Request');
+        });
+      },
+      child: Container(
+        height: 50,
+        decoration: BoxDecoration(
+          color:
+              isSelected
+                  ? const Color.fromARGB(255, 5, 130, 232)
+                  : Colors.blue[100],
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Center(
+          child: Text(
+            text,
+            style: TextStyle(
+              fontSize: 18,
+              color: isSelected ? Colors.white : Colors.blue,
+              fontWeight: FontWeight.normal,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}

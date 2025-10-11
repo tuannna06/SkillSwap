@@ -2,3 +2,5 @@
 
 
 run 'flutter pub get' to get required packages
+
+Then run 'flutter run' to run

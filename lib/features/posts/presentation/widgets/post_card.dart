@@ -1,0 +1,171 @@
+import 'package:flutter/material.dart';
+import 'package:cs222_final/features/posts/domain/entities/post_entity.dart';
+
+class PostCard extends StatelessWidget {
+  final PostEntity post;
+  final VoidCallback? onTap;
+
+  const PostCard({
+    super.key,
+    required this.post,
+    this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+      child: Material(
+        borderRadius: BorderRadius.circular(12),
+        color: Colors.white,
+        elevation: 0,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(12),
+          onTap: onTap,
+          child: Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: Colors.grey.shade200,
+                width: 1,
+              ),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Header with author and post type
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    _buildAuthorInfo(),
+                    _buildPostTypeBadge(),
+                  ],
+                ),
+                
+                const SizedBox(height: 16),
+                
+                // Title
+                Text(
+                  post.title,
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: -0.2,
+                    height: 1.3,
+                  ),
+                ),
+                
+                const SizedBox(height: 8),
+                
+                // Description
+                if (post.description != null && post.description!.isNotEmpty)
+                  Text(
+                    post.description!,
+                    style: TextStyle(
+                      fontSize: 15,
+                      color: Colors.grey.shade700,
+                      height: 1.4,
+                    ),
+                    maxLines: 3,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                
+                const SizedBox(height: 16),
+                
+                // TODO: Add skills and location footer section
+              
+                Text('${post.isRequest ? 'Skills Needed: ' : 'Skill Offered: '}${post.neededSkills.join(', ')}'),
+
+                const SizedBox(height: 16),
+                Text('Location: ${post.location ?? 'N/A'}'),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAuthorInfo() {
+    return Row(
+      children: [
+        CircleAvatar(
+          radius: 16,
+          backgroundColor: Colors.grey.shade300,
+          child: Text(
+            post.authorName.isNotEmpty ? post.authorName[0].toUpperCase() : '?',
+            style: const TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+              color: Colors.black54,
+            ),
+          ),
+        ),
+        const SizedBox(width: 12),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              post.authorName,
+              style: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            Text(
+              _formatTimestamp(post.timestamp),
+              style: TextStyle(
+                fontSize: 12,
+                color: Colors.grey.shade600,
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildPostTypeBadge() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        color: post.isRequest 
+            ? Colors.blue.shade50 
+            : Colors.green.shade50,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: post.isRequest 
+              ? Colors.blue.shade200 
+              : Colors.green.shade200,
+          width: 1,
+        ),
+      ),
+      child: Text(
+        post.isRequest ? 'Request' : 'Offer',
+        style: TextStyle(
+          fontSize: 12,
+          fontWeight: FontWeight.w500,
+          color: post.isRequest 
+              ? Colors.blue.shade700 
+              : Colors.green.shade700,
+        ),
+      ),
+    );
+  }
+
+  String _formatTimestamp(DateTime timestamp) {
+    final now = DateTime.now();
+    final difference = now.difference(timestamp);
+    
+    if (difference.inDays > 0) {
+      return '${difference.inDays}d ago';
+    } else if (difference.inHours > 0) {
+      return '${difference.inHours}h ago';
+    } else if (difference.inMinutes > 0) {
+      return '${difference.inMinutes}m ago';
+    } else {
+      return 'Just now';
+    }
+  }
+}

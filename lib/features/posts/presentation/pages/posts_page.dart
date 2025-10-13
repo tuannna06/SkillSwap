@@ -1,6 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:cs222_final/components/custom_app_bar.dart';
-import 'package:cs222_final/features/posts/presentation/pages/create_posts_page.dart'; 
+import 'package:cs222_final/features/posts/domain/entities/post_entity.dart';
+import 'package:cs222_final/features/posts/presentation/bloc/posts_bloc.dart';
+import 'package:cs222_final/features/posts/presentation/bloc/posts_event.dart';
+import 'package:cs222_final/features/posts/presentation/bloc/posts_state.dart';
+import 'package:cs222_final/features/posts/presentation/pages/create_post_page.dart';
+import 'package:cs222_final/features/posts/presentation/widgets/post_card.dart';
 
 class PostsPage extends StatelessWidget {
   const PostsPage({super.key});
@@ -8,24 +14,83 @@ class PostsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CustomAppBar(title: 'Posts'),
-      body: const Center(
-        child: Text('Posts Page!', style: TextStyle(fontSize: 12)),
+    backgroundColor: Colors.blueGrey[100],
+      appBar: CustomAppBar(title: 'Community Help'),
+      body: BlocBuilder<PostsBloc, PostsState>(
+        builder: (context, state) {
+          if (state is PostsInitial) {
+            context.read<PostsBloc>().add(PostLoadRequested());
+            return const Center(child: CircularProgressIndicator());
+          }
+          if (state is PostsLoading) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          if (state is PostsLoaded) {
+            return _buildPostContent(context, state.posts);
+          }
+
+          if (state is PostsError) {
+            return _buildErrorWidget(context, state.message);
+          }
+
+          return const Center(child: Text('unknown state'));
+        },
       ),
-      floatingActionButton: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          ElevatedButton(
+      floatingActionButton: Builder(
+        builder: (context) {
+          return FloatingActionButton(
+            backgroundColor: Colors.blue,
+            child: Icon(Icons.add),
             onPressed: () {
+              final postsBloc = context.read<PostsBloc>();
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => const CreatePostPage()),
+                MaterialPageRoute(
+                  builder: (context) => BlocProvider.value(
+                    value: postsBloc,
+                    child: CreatePostPage(),
+                  ),
+                ),
               );
             },
-            child: const Text('Click Me'),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildPostContent(BuildContext context, List<PostEntity> posts) {
+    if (posts.isEmpty) {
+      return Center(child: Text('No Posts Yet'));
+    }
+    return RefreshIndicator(
+      child: ListView(
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        children: posts.map((post) => PostCard(post: post)).toList(),
+      ),
+      onRefresh: () async {
+        context.read<PostsBloc>().add(PostLoadRequested());
+      },
+    );
+  }
+
+
+  Widget _buildErrorWidget(BuildContext context, String message) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.error_outline, size: 60, color: Colors.red),
+          SizedBox(height: 16),
+          Text('Error: $message'),
+          SizedBox(height: 16),
+          ElevatedButton(
+            onPressed: () => context.read<PostsBloc>().add(PostLoadRequested()),
+            child: Text('Try Again'),
           ),
         ],
-      )
+      ),
     );
   }
 }

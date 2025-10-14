@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:cs222_final/features/posts/domain/entities/post_entity.dart';
+import 'package:cs222_final/features/posts/presentation/bloc/posts_bloc.dart';
+import 'package:cs222_final/features/posts/presentation/bloc/posts_event.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class CreatePostPage extends StatefulWidget {
   const CreatePostPage({super.key});
@@ -21,7 +25,7 @@ class _CreatePostPageState extends State<CreatePostPage> {
     'Academic',
     'Manual Labor',
     'Sports',
-    'Other'
+    'Other',
   ];
 
   @override
@@ -98,7 +102,15 @@ class _CreatePostPageState extends State<CreatePostPage> {
                   child: DropdownMenu<String>(
                     width: double.infinity,
                     label: Text('Select a category'),
-                    dropdownMenuEntries: categories.map((category) => DropdownMenuEntry(value: category, label: category)).toList(),
+                    dropdownMenuEntries:
+                        categories
+                            .map(
+                              (category) => DropdownMenuEntry(
+                                value: category,
+                                label: category,
+                              ),
+                            )
+                            .toList(),
                     onSelected: (String? value) {
                       setState(() {
                         selectedCategory = value;
@@ -151,7 +163,7 @@ class _CreatePostPageState extends State<CreatePostPage> {
                 TextFormField(
                   maxLines: null,
                   minLines: 4,
-                  controller: descriptionController,
+                  controller: skillsController,
                   decoration: InputDecoration(
                     hintText:
                         isRequest
@@ -255,6 +267,20 @@ class _CreatePostPageState extends State<CreatePostPage> {
             minimumSize: Size(double.infinity, 50),
           ),
           onPressed: () {
+            final newPost = PostEntity(
+              category: selectedCategory ?? 'Other',
+              postId: DateTime.now().millisecondsSinceEpoch.toString(),
+              title: titleController.text,
+              description: descriptionController.text,
+              authorId: "temp-user-id",
+              authorName: "authorName",
+              location: locationController.text,
+              timestamp: DateTime.now(),
+              isRequest: isRequest,
+              neededSkills: skillsController.text.split(','),
+            );
+
+            context.read<PostsBloc>().add(CreateNewPostRequested(newPost));
             Navigator.pop(context);
           },
           child: Text(

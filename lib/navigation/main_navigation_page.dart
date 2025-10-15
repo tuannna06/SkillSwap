@@ -19,7 +19,7 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
   static const List<Widget> _widgetOptions = <Widget>[
     HomePage(),
     PostsPage(),
-    ProfilePage(),
+    ProfilePage({}, userId: "1"),
     NotificationsPage(),
     MessagesPage(),
   ];

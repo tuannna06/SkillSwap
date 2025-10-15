@@ -1,50 +1,48 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:cs222_final/features/posts/data/datasources/posts_remote_data_source.dart';
+import 'package:cs222_final/features/posts/data/repositories/posts_repository_impl.dart';
+import 'package:cs222_final/features/posts/presentation/bloc/posts_bloc.dart';
 import 'package:cs222_final/navigation/main_navigation_page.dart';
 
-void main() {
-  runApp(const MyApp());
+import 'features/profile/data/datasources/profile_remote_datasource.dart';
+import 'features/profile/data/repositories/profile_repository_impl.dart';
+import 'features/profile/presentation/bloc/profile_bloc.dart';
+import 'firebase_options.dart';
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+      debugShowCheckedModeBanner: false,
+      title: 'Skill Sharing Profile',
+      theme: ThemeData(fontFamily: 'Roboto', useMaterial3: true),
+      home: MultiBlocProvider(
+        providers: [
+          BlocProvider(
+            create:
+                (context) => PostsBloc(
+                  repository: PostsRepositoryImpl(PostsRemoteDataSource()),
+                ),
+          ),
+          BlocProvider(
+            create:
+                (context) => ProfileBloc(
+                  repository: ProfileRepositoryImpl(ProfileRemoteDatasource()),
+                ),
+          ),
+        ],
+        child: MainNavigationPage(),
       ),
-      home: const MyHomePage(title: 'Help Forum'),
-    );
-  }
-}
-
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
-  final String title;
-
-  @override
-  State<MyHomePage> createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        // TRY THIS: Try changing the color here to a specific color (to
-        // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
-        // change color while the other colors stay the same.
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
-      ),
-      body: const MainNavigationPage(),
     );
   }
 }

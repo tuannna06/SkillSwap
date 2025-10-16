@@ -1,3 +1,4 @@
+import 'package:cs222_final/features/posts/domain/entities/post_category.dart';
 import 'package:flutter/material.dart';
 import 'package:cs222_final/features/posts/domain/entities/post_entity.dart';
 import 'package:cs222_final/features/posts/presentation/bloc/posts_bloc.dart';
@@ -17,16 +18,7 @@ class _CreatePostPageState extends State<CreatePostPage> {
   final descriptionController = TextEditingController();
   final locationController = TextEditingController();
   final skillsController = TextEditingController();
-  String? selectedCategory;
-
-  final List<String> categories = [
-    'Programming',
-    'Design',
-    'Academic',
-    'Manual Labor',
-    'Sports',
-    'Other',
-  ];
+  PostCategory? selectedCategory;
 
   @override
   Widget build(BuildContext context) {
@@ -99,19 +91,19 @@ class _CreatePostPageState extends State<CreatePostPage> {
 
                 //drop out selection
                 SizedBox(
-                  child: DropdownMenu<String>(
+                  child: DropdownMenu<PostCategory>(
                     width: double.infinity,
                     label: Text('Select a category'),
                     dropdownMenuEntries:
-                        categories
+                        PostCategory.values
                             .map(
                               (category) => DropdownMenuEntry(
                                 value: category,
-                                label: category,
+                                label: category.label,
                               ),
                             )
                             .toList(),
-                    onSelected: (String? value) {
+                    onSelected: (PostCategory? value) {
                       setState(() {
                         selectedCategory = value;
                       });
@@ -268,7 +260,7 @@ class _CreatePostPageState extends State<CreatePostPage> {
           ),
           onPressed: () {
             final newPost = PostEntity(
-              category: selectedCategory ?? 'Other',
+              category: selectedCategory ?? PostCategory.other,
               postId: DateTime.now().millisecondsSinceEpoch.toString(),
               title: titleController.text,
               description: descriptionController.text,

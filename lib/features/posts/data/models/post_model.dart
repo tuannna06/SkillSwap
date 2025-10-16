@@ -1,4 +1,5 @@
 import 'package:cs222_final/features/posts/domain/entities/post_entity.dart';
+import 'package:cs222_final/features/posts/domain/entities/post_category.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class PostModel extends PostEntity {
@@ -19,7 +20,7 @@ class PostModel extends PostEntity {
   // Add toMap() and fromMap() methods here
   Map<String, dynamic> toMap() {
     return {
-      'category' : category,
+      'category' : category.name,
       'postId': postId,
       'title': title,
       'description': description,
@@ -35,7 +36,7 @@ class PostModel extends PostEntity {
 
   factory PostModel.fromMap(Map<String, dynamic> map) {
     return PostModel(
-      category: map['category'] ?? '',
+      category: PostCategory.values.byName(map['category'] ?? PostCategory.other.name),
       postId: map['postId'] ?? '',
       title: map['title'] ?? '',
       description: map['description'],

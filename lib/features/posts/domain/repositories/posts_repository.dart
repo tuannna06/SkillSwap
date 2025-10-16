@@ -7,4 +7,5 @@ abstract class PostsRepository {
   Future<void> deletePost(String postId);
   Stream<List<PostEntity>> getPostsByLocation(String location);
   Stream<List<PostEntity>> getPostsByCategory(String location);
+  Future<void> deleteAllPosts();
 }

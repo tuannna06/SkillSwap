@@ -1,6 +1,8 @@
 [![Review Assignment Due Date](https://classroom.github.com/assets/deadline-readme-button-22041afd0340ce965d47ae6ef1cefeee28c7c493a6346c4f15d667ab976d596c.svg)](https://classroom.github.com/a/19BwrNgF)
 
 
-run 'flutter pub get' and 'flutter pub add bloc_test' to get required packages
+run 'flutter pub get' to get required packages
 
 Then run 'flutter run' to run
+
+To test, run 'cd lib', 'cd features', 'flutter test'

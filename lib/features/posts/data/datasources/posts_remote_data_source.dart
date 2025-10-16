@@ -54,4 +54,16 @@ class PostsRemoteDataSource {
         .snapshots()
         .map((snapshot) => snapshot.docs.map((doc) => {'postId': doc.id, ...doc.data()}).toList());
   }
+
+  Future<void> deleteAllPosts() async {
+    final batch = FirebaseFirestore.instance.batch();
+    final snapshot = await postCollection.get();
+
+    for (final doc in snapshot.docs) {
+      batch.delete(doc.reference);
+    }
+
+    await batch.commit();
+  }
+  
 }

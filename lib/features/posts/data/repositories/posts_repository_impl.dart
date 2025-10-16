@@ -49,4 +49,9 @@ class PostsRepositoryImpl implements PostsRepository {
   Stream<List<PostEntity>> getPostsByCategory(String category) {
     return postsRemoteDataSource.getPostsByCategory(category).map((mapList) => mapList.map((map) => PostModel.fromMap(map)).toList());
   }
+
+  @override
+  Future<void> deleteAllPosts() async {
+    await postsRemoteDataSource.deleteAllPosts();
+  }
 }

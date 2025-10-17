@@ -8,6 +8,10 @@ abstract class PostsEvent extends Equatable {
 
 class PostLoadRequested extends PostsEvent {}
 
+class PostSearchRequested extends PostsEvent {
+  final String query;
+  PostSearchRequested(this.query);
+}
 class RefreshPostRequested extends PostsEvent {}
 
 class CreateNewPostRequested extends PostsEvent {

@@ -48,9 +48,19 @@ class PostsRemoteDataSource {
     await postCollection.doc(postId).delete();
   }
 
+  //get posts by category
   Stream<List<Map<String, dynamic>>> getPostsByCategory(String category) {
     return postCollection
         .where('category', isEqualTo: category)
+        .snapshots()
+        .map((snapshot) => snapshot.docs.map((doc) => {'postId': doc.id, ...doc.data()}).toList());
+  }
+
+  //get posts by title
+  Stream<List<Map<String, dynamic>>> getPostsByTitle(String title) {
+    return postCollection
+        .where('title', isGreaterThanOrEqualTo: title)
+        .where('title', isLessThanOrEqualTo: title + '\uf8ff')
         .snapshots()
         .map((snapshot) => snapshot.docs.map((doc) => {'postId': doc.id, ...doc.data()}).toList());
   }

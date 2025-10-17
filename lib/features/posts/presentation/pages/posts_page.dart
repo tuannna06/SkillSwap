@@ -1,3 +1,4 @@
+import 'package:cs222_final/features/posts/data/repositories/posts_repository_impl.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:cs222_final/components/custom_app_bar.dart';
@@ -10,6 +11,7 @@ import 'package:cs222_final/features/posts/presentation/widgets/post_card.dart';
 
 class PostsPage extends StatelessWidget {
   const PostsPage({super.key});
+
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +26,8 @@ class PostsPage extends StatelessWidget {
           children: [
             // Search Field
               Expanded(
-                child: TextField(
+                child: 
+                TextField(
                   decoration: InputDecoration(
                     hintText: 'Search tasks...',
                     prefixIcon: const Icon(Icons.search, color: Colors.grey),
@@ -38,6 +41,11 @@ class PostsPage extends StatelessWidget {
                   ),
                   onChanged: (query) {
                     // Add filtering logic here, e.g.:
+                    if (query.isEmpty) {
+                      context.read<PostsBloc>().add(PostLoadRequested());
+                    } else {
+                      context.read<PostsBloc>().add(PostSearchRequested(query));
+                    }
                   },
                 ),
               ),

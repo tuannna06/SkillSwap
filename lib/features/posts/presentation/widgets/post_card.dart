@@ -119,7 +119,7 @@ class PostCard extends StatelessWidget {
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
               ),
-            ),
+            ),  
             Text(
               _formatTimestamp(post.timestamp),
               style: TextStyle(

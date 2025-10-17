@@ -1,4 +1,4 @@
-//import 'package:cs222_final/features/posts/data/repositories/posts_repository_impl.dart';
+import 'package:cs222_final/features/posts/data/repositories/posts_repository_impl.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:cs222_final/components/custom_app_bar.dart';
@@ -14,7 +14,7 @@ const List<String> categories = <String>['Programming', 'Design', 'Academic', 'M
 class PostsPage extends StatelessWidget {
   const PostsPage({super.key});
 
-  
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -56,7 +56,7 @@ class PostsPage extends StatelessWidget {
               InkWell(
                 onTap: () {
                   // Open filter modal or show popup menu
-                  _showFilterDialog(context);
+                  //_showFilterDialog(context);
                 },
                 borderRadius: BorderRadius.circular(8),
                 child: Container(

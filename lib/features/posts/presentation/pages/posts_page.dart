@@ -9,6 +9,8 @@ import 'package:cs222_final/features/posts/presentation/bloc/posts_state.dart';
 import 'package:cs222_final/features/posts/presentation/pages/create_post_page.dart';
 import 'package:cs222_final/features/posts/presentation/widgets/post_card.dart';
 
+const List<String> categories = <String>['Programming', 'Design', 'Academic', 'Manual Labour', 'Sports', 'Other'];
+
 class PostsPage extends StatelessWidget {
   const PostsPage({super.key});
 
@@ -152,4 +154,45 @@ class PostsPage extends StatelessWidget {
       ),
     );
   }
+}
+
+//Temp Base code provided by ChatGPT
+void _showFilterDialog(BuildContext context) {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      String selectedCategory = categories.first;
+      return AlertDialog(
+        title: const Text('Filter by Category'),
+        content: StatefulBuilder(
+          builder: (context, setState) {
+            return DropdownButton<String>(
+              value: selectedCategory,
+              onChanged: (String? value) {
+                if (value != null) {
+                  setState(() {
+                    selectedCategory = value;
+                  });
+                  // Dispatch event to filter
+                  context.read<PostsBloc>().add(FilterPostsByCategory(value));
+                }
+              },
+              items: categories
+                  .map((value) => DropdownMenuItem<String>(
+                        value: value,
+                        child: Text(value),
+                      ))
+                  .toList(),
+            );
+          },
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Close'),
+          ),
+        ],
+      );
+    },
+  );
 }

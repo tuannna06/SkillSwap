@@ -24,7 +24,7 @@ class ProfileRepositoryImpl implements ProfileRepository {
   Future<void> reloadUserProfile(String userId) async {
     try {
       //TODO: implement reload user profile
-      final userData = await remoteDatasource.getUserData(userId);
+      //final userData = await remoteDatasource.getUserData(userId);
     } catch (e) {
       // print('Error reloading user profile: $e');
     }

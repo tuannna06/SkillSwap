@@ -16,7 +16,54 @@ class PostsPage extends StatelessWidget {
     return Scaffold(
     backgroundColor: Colors.blueGrey[100],
       appBar: CustomAppBar(title: 'Community Help'),
-      body: BlocBuilder<PostsBloc, PostsState>(
+      body: Column(children: [
+       Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        color: Colors.white,
+        child: Row(
+          children: [
+            // Search Field
+              Expanded(
+                child: TextField(
+                  decoration: InputDecoration(
+                    hintText: 'Search tasks...',
+                    prefixIcon: const Icon(Icons.search, color: Colors.grey),
+                    filled: true,
+                    fillColor: Colors.grey[100],
+                    contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 12),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide: BorderSide.none,
+                    ),
+                  ),
+                  onChanged: (query) {
+                    // Add filtering logic here, e.g.:
+                  },
+                ),
+              ),
+              const SizedBox(width: 8),
+              // Filter Button
+              InkWell(
+                onTap: () {
+                  // Open filter modal or show popup menu
+                  //_showFilterDialog(context);
+                },
+                borderRadius: BorderRadius.circular(8),
+                child: Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: Colors.blue.shade50,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Icon(Icons.filter_list, color: Colors.blue),
+                ),
+              ),
+            ],
+          ),
+      ),
+      
+      Expanded(child:
+       BlocBuilder<PostsBloc, PostsState>(
         builder: (context, state) {
           if (state is PostsInitial) {
             context.read<PostsBloc>().add(PostLoadRequested());
@@ -36,7 +83,11 @@ class PostsPage extends StatelessWidget {
 
           return const Center(child: Text('unknown state'));
         },
+        ),
       ),
+      ],
+    ),
+
       floatingActionButton: Builder(
         builder: (context) {
           return FloatingActionButton(

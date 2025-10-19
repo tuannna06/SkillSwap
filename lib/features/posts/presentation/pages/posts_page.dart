@@ -279,10 +279,8 @@ class _PostsPageState extends State<PostsPage> {
         rows.add(const SizedBox(height: 8));
       }
     }
-    return Container(
-      child: Column(
-        children: rows,
-      ),
+    return Column(
+      children: rows,
     );  
   }
 

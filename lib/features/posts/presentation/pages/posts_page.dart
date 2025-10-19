@@ -165,7 +165,6 @@ class _PostsPageState extends State<PostsPage> {
     showDialog(
       context: outerContext,
       builder: (BuildContext context) {
-        int columns = 3;
         return AlertDialog(
           title: const Text('Filter Posts'),
           content: StatefulBuilder(

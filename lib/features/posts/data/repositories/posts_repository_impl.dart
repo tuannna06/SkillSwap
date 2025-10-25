@@ -46,17 +46,20 @@ class PostsRepositoryImpl implements PostsRepository {
   }
 
   @override
-  Stream<List<PostEntity>> getPostsByCategory(String category) {
-    return postsRemoteDataSource.getPostsByCategory(category).map((mapList) => mapList.map((map) => PostModel.fromMap(map)).toList());
-  }
-
-  @override
   Future<void> deleteAllPosts() async {
     await postsRemoteDataSource.deleteAllPosts();
   }
 
   @override
-  Stream<List<PostEntity>> getPostsByTitle(String title) {
-    return postsRemoteDataSource.getPostsByTitle(title).map((mapList) => mapList.map((map) => PostModel.fromMap(map)).toList());
+  Stream<List<PostEntity>> getPostsFilteredByTitle(List<String> categories, List<bool> types, String? title) {
+    final Stream<List<Map<String, dynamic>>> filteredPostsData =
+        postsRemoteDataSource.getPostsFilteredByTitle(categories,types,title);
+
+    return filteredPostsData.map((listOfMaps) {
+      final entities =
+          listOfMaps.map((mapData) => PostModel.fromMap(mapData)).toList();
+
+      return entities;
+    });
   }
 }

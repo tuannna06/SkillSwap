@@ -48,21 +48,29 @@ class PostsRemoteDataSource {
     await postCollection.doc(postId).delete();
   }
 
-  //get posts by category
-  Stream<List<Map<String, dynamic>>> getPostsByCategory(String category) {
-    return postCollection
-        .where('category', isEqualTo: category)
-        .snapshots()
-        .map((snapshot) => snapshot.docs.map((doc) => {'postId': doc.id, ...doc.data()}).toList());
-  }
 
-  //get posts by title
-  Stream<List<Map<String, dynamic>>> getPostsByTitle(String title) {
-    return postCollection
-        .where('title', isGreaterThanOrEqualTo: title)
-        .where('title', isLessThanOrEqualTo: title + '\uf8ff')
-        .snapshots()
-        .map((snapshot) => snapshot.docs.map((doc) => {'postId': doc.id, ...doc.data()}).toList());
+  Stream<List<Map<String, dynamic>>> getPostsFilteredByTitle(
+    List<String> categories,
+    List<bool> types,
+    String? title,
+  ) {
+    Query query = postCollection;
+
+    query = query
+        .where('category', whereIn: categories)
+        .where('isRequest', whereIn: types);
+
+    if (title != null && title.isNotEmpty) {
+      query = query
+          .orderBy('title')
+          .where('title', isGreaterThanOrEqualTo: title)
+          .where('title', isLessThanOrEqualTo: '$title\uf8ff');
+    } 
+    return query.orderBy('timestamp', descending: true).snapshots().map(
+          (snapshot) => snapshot.docs
+              .map((doc) => {'postId': doc.id, ...doc.data() as Map<String, dynamic>})
+              .toList(),
+        );
   }
 
   Future<void> deleteAllPosts() async {

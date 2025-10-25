@@ -8,10 +8,6 @@ abstract class PostsEvent extends Equatable {
 
 class PostLoadRequested extends PostsEvent {}
 
-class PostSearchRequested extends PostsEvent {
-  final String query;
-  PostSearchRequested(this.query);
-}
 class RefreshPostRequested extends PostsEvent {}
 
 class CreateNewPostRequested extends PostsEvent {
@@ -40,8 +36,10 @@ class DeletePostRequested extends PostsEvent {
   List<Object> get props => [postId];
 }
 
-class FilterPostsByCategory extends PostsEvent {
-  final String? category;
+class FilterPosts extends PostsEvent {
+  final List<String> category;
+  final List<bool> type;
+  final String? title;
 
-  FilterPostsByCategory(this.category);
+  FilterPosts(this.category, this.type, this.title);
 }

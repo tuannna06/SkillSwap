@@ -36,8 +36,10 @@ class DeletePostRequested extends PostsEvent {
   List<Object> get props => [postId];
 }
 
-class FilterPostsByCategory extends PostsEvent {
-  final String? category;
+class FilterPosts extends PostsEvent {
+  final List<String> category;
+  final List<bool> type;
+  final String? title;
 
-  FilterPostsByCategory(this.category);
+  FilterPosts(this.category, this.type, this.title);
 }

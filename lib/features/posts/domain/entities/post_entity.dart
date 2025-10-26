@@ -1,7 +1,8 @@
+import 'package:cs222_final/features/posts/domain/entities/post_category.dart';
 import 'package:equatable/equatable.dart';
 
 class PostEntity extends Equatable {
-  final String category;
+  final PostCategory category;
   final String postId;
   final String title;
   final String? description;

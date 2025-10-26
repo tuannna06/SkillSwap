@@ -13,7 +13,7 @@ class PostsBloc extends Bloc<PostsEvent, PostsState> {
     on<CreateNewPostRequested>(_onCreateNewRequested);
     on<UpdatePostRequested>(_onUpdateRequested);
     on<DeletePostRequested>(_onDeleteRequested);
-    on<FilterPostsByCategory>(_onFilterPostByCategory);
+    on<FilterPosts>(_onFilterPosts);
   }
 
   Future<void> _onLoadRequested(
@@ -87,13 +87,14 @@ class PostsBloc extends Bloc<PostsEvent, PostsState> {
       emit(PostsError(e.toString()));
     }
   }
-  Future<void> _onFilterPostByCategory(
-      FilterPostsByCategory event,
+
+  Future<void> _onFilterPosts(
+      FilterPosts event,
       Emitter<PostsState> emit,
       )async{
     emit(PostsLoading());
     try{
-      await emit.forEach(repository.getPostsByCategory(event.category ?? 'Other'),
+      await emit.forEach(repository.getPostsFilteredByTitle(event.category, event.type, event.title),
       onData: (List<PostEntity> posts) => PostsLoaded(posts),
       onError: (error, _) => PostsError(error.toString()));
     } catch(e){

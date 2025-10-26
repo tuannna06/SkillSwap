@@ -6,7 +6,7 @@ class PostsRemoteDataSource {
   Future<Map<String, dynamic>> getPost(String postId) async {
     final DocumentSnapshot doc = await postCollection.doc(postId).get();
     if (!doc.exists) {
-      throw Exception('User not found');
+      throw Exception('Post not found');
     }
     return doc.data() as Map<String, dynamic>;
   }
@@ -48,10 +48,40 @@ class PostsRemoteDataSource {
     await postCollection.doc(postId).delete();
   }
 
-  Stream<List<Map<String, dynamic>>> getPostsByCategory(String category) {
-    return postCollection
-        .where('category', isEqualTo: category)
-        .snapshots()
-        .map((snapshot) => snapshot.docs.map((doc) => {'postId': doc.id, ...doc.data()}).toList());
+
+  Stream<List<Map<String, dynamic>>> getPostsFilteredByTitle(
+    List<String> categories,
+    List<bool> types,
+    String? title,
+  ) {
+    Query query = postCollection;
+
+    query = query
+        .where('category', whereIn: categories)
+        .where('isRequest', whereIn: types);
+
+    if (title != null && title.isNotEmpty) {
+      query = query
+          .orderBy('title')
+          .where('title', isGreaterThanOrEqualTo: title)
+          .where('title', isLessThanOrEqualTo: '$title\uf8ff');
+    } 
+    return query.orderBy('timestamp', descending: true).snapshots().map(
+          (snapshot) => snapshot.docs
+              .map((doc) => {'postId': doc.id, ...doc.data() as Map<String, dynamic>})
+              .toList(),
+        );
   }
+
+  Future<void> deleteAllPosts() async {
+    final batch = FirebaseFirestore.instance.batch();
+    final snapshot = await postCollection.get();
+
+    for (final doc in snapshot.docs) {
+      batch.delete(doc.reference);
+    }
+
+    await batch.commit();
+  }
+  
 }

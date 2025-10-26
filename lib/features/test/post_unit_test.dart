@@ -1,3 +1,4 @@
+import 'package:cs222_final/features/posts/domain/entities/post_category.dart';
 import 'package:cs222_final/features/posts/domain/repositories/posts_repository.dart';
 import 'package:cs222_final/features/posts/presentation/bloc/posts_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -15,7 +16,7 @@ void main() {
   setUpAll(() {
     registerFallbackValue(
       PostEntity(
-        category: 'Test',
+        category: PostCategory.other,
         postId: 'test-id',
         title: 'Test Post',
         description: 'Test description',
@@ -36,7 +37,7 @@ void main() {
     late PostsBloc postsBloc;
     // Create mock post data for testing
     final mockPost1 = PostEntity(
-      category: 'Technology',
+      category: PostCategory.programming,
       postId: '1',
       title: 'Need help with Flutter',
       description: 'Looking for Flutter developer',
@@ -50,7 +51,7 @@ void main() {
     );
 
     final mockPost2 = PostEntity(
-      category: 'Education',
+      category: PostCategory.academic,
       postId: '2',
       title: 'Tutoring available',
       description: 'Offering math tutoring',

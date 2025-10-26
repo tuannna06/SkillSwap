@@ -1,3 +1,4 @@
+import 'package:cs222_final/features/posts/domain/entities/post_category.dart';
 import 'package:flutter/material.dart';
 import 'package:cs222_final/features/posts/domain/entities/post_entity.dart';
 
@@ -39,7 +40,13 @@ class PostCard extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     _buildAuthorInfo(),
-                    _buildPostTypeBadge(),
+                    Row(
+                      children: [
+                        _buildPostCategoryBadge(),
+                        const SizedBox(width: 4),
+                        _buildPostTypeBadge()
+                        ]
+                    )
                   ],
                 ),
                 
@@ -112,7 +119,7 @@ class PostCard extends StatelessWidget {
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
               ),
-            ),
+            ),  
             Text(
               _formatTimestamp(post.timestamp),
               style: TextStyle(
@@ -149,6 +156,28 @@ class PostCard extends StatelessWidget {
           color: post.isRequest 
               ? Colors.blue.shade700 
               : Colors.green.shade700,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPostCategoryBadge() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        color: post.category.color.withAlpha(70),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: post.category.color,
+          width: 1,
+        ),
+      ),
+      child: Text(
+        post.category.label,
+        style: TextStyle(
+          fontSize: 12,
+          fontWeight: FontWeight.w500,
+          color: post.category.color,
         ),
       ),
     );

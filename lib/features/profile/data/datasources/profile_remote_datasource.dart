@@ -19,13 +19,14 @@ class ProfileRemoteDatasource {
     });
   }
 
-  Future<void> createUser(String userId, Map<String, dynamic> userData) async {
-    try {
-      await userCollection.doc(userId).set(userData);
-    } catch (e) {
-      throw Exception('Failed to create user: $e');
-    }
+  Future<String> createUser(Map<String, dynamic> userData) async {
+  try {
+    final docRef = await userCollection.add(userData);
+    return docRef.id;
+  } catch (e) {
+    throw Exception('Failed to create user: $e');
   }
+}
 
   Future<void> updateUser(String userId, Map<String, dynamic> updatedData) async {
     try {

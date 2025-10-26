@@ -65,23 +65,22 @@ void main() {
     blocTest<ProfileBloc, ProfileState>(
       'emits [ProfileLoading, ProfileLoaded] when ProfileLoadRequested succeeds',
       build: () {
-        when(() => mockProfileRepository.getUserProfile(any()))
-            .thenAnswer((_) async => mockUser1);
+        when(
+          () => mockProfileRepository.getUserProfile(any()),
+        ).thenAnswer((_) async => mockUser1);
         return profileBloc;
       },
       act: (bloc) => bloc.add(ProfileLoadRequested(mockUser1.id)),
-      expect: () => [
-        ProfileLoading(),
-        ProfileLoaded(mockUser1),
-      ],
+      expect: () => [ProfileLoading(), ProfileLoaded(mockUser1)],
     );
 
     // test loading user profile - failure
     blocTest<ProfileBloc, ProfileState>(
       'emits [ProfileLoading, ProfileError] when ProfileLoadRequested fails',
       build: () {
-        when(() => mockProfileRepository.getUserProfile(any()))
-            .thenThrow(Exception('Failed to load user'));
+        when(
+          () => mockProfileRepository.getUserProfile(any()),
+        ).thenThrow(Exception('Failed to load user'));
         return profileBloc;
       },
       act: (bloc) => bloc.add(ProfileLoadRequested(mockUser1.id)),
@@ -91,32 +90,32 @@ void main() {
       ],
     );
 
-    // test creating a user - success
+    //test creating a user - success
     blocTest<ProfileBloc, ProfileState>(
       'emits [ProfileLoading, ProfileLoaded] when CreateUserRequested succeeds',
       build: () {
-        when(() => mockProfileRepository.createUser(any(), any()))
-            .thenAnswer((_) async {});
-        when(() => mockProfileRepository.getUserProfile(any()))
-            .thenAnswer((_) async => mockUser1);
+        when(
+          () => mockProfileRepository.createUser(any()),
+        ).thenAnswer((_) async => 'new-user-id');
+        when(
+          () => mockProfileRepository.getUserProfile(any()),
+        ).thenAnswer((_) async => mockUser1);
         return profileBloc;
       },
-      act: (bloc) => bloc.add(CreateUserRequested(mockUser1.id, mockUser1)),
-      expect: () => [
-        ProfileLoading(),
-        ProfileLoaded(mockUser1),
-      ],
+      act: (bloc) => bloc.add(CreateUserRequested(mockUser1)),
+      expect: () => [ProfileLoading(), ProfileLoaded(mockUser1)],
     );
 
     // test creating a user - failure
     blocTest<ProfileBloc, ProfileState>(
       'emits [ProfileError] when CreateUserRequested fails',
       build: () {
-        when(() => mockProfileRepository.createUser(any(), any()))
-            .thenThrow(Exception('Create failed'));
+        when(
+          () => mockProfileRepository.createUser(any()),
+        ).thenThrow(Exception('Create failed'));
         return profileBloc;
       },
-      act: (bloc) => bloc.add(CreateUserRequested(mockUser1.id, mockUser1)),
+      act: (bloc) => bloc.add(CreateUserRequested(mockUser1)),
       expect: () => [
         ProfileLoading(),
         ProfileError('Failed to create user: Exception: Create failed'),
@@ -127,23 +126,22 @@ void main() {
     blocTest<ProfileBloc, ProfileState>(
       'emits [ProfileLoading, ProfileInitial] when DeleteUserRequested succeeds',
       build: () {
-        when(() => mockProfileRepository.deleteUser(any()))
-            .thenAnswer((_) async {});
+        when(
+          () => mockProfileRepository.deleteUser(any()),
+        ).thenAnswer((_) async {});
         return profileBloc;
       },
       act: (bloc) => bloc.add(DeleteUserRequested(mockUser1.id)),
-      expect: () => [
-        ProfileLoading(),
-        ProfileInitial(),
-      ],
+      expect: () => [ProfileLoading(), ProfileInitial()],
     );
 
     // test deleting a user - failure
     blocTest<ProfileBloc, ProfileState>(
       'emits [ProfileError] when DeleteUserRequested fails',
       build: () {
-        when(() => mockProfileRepository.deleteUser(any()))
-            .thenThrow(Exception('Delete failed'));
+        when(
+          () => mockProfileRepository.deleteUser(any()),
+        ).thenThrow(Exception('Delete failed'));
         return profileBloc;
       },
       act: (bloc) => bloc.add(DeleteUserRequested(mockUser1.id)),
@@ -157,28 +155,30 @@ void main() {
     blocTest<ProfileBloc, ProfileState>(
       'emits [ProfileLoading, ProfileLoaded] when UpdateUserRequested succeeds',
       build: () {
-        when(() => mockProfileRepository.updateUser(any(), any()))
-            .thenAnswer((_) async {});
-        when(() => mockProfileRepository.getUserProfile(any()))
-            .thenAnswer((_) async => mockUser1);
+        when(
+          () => mockProfileRepository.updateUser(any(), any()),
+        ).thenAnswer((_) async {});
+        when(
+          () => mockProfileRepository.getUserProfile(any()),
+        ).thenAnswer((_) async => mockUser1);
         return profileBloc;
       },
-      act: (bloc) => bloc.add(UpdateUserRequested(mockUser1.id, {"name": "Updated Name"})),
-      expect: () => [
-        ProfileLoading(),
-        ProfileLoaded(mockUser1),
-      ],
+      act: (bloc) =>
+          bloc.add(UpdateUserRequested(mockUser1.id, {"name": "Updated Name"})),
+      expect: () => [ProfileLoading(), ProfileLoaded(mockUser1)],
     );
 
     // test updating a user - failure
     blocTest<ProfileBloc, ProfileState>(
       'emits [ProfileError] when UpdateUserRequested fails',
       build: () {
-        when(() => mockProfileRepository.updateUser(any(), any()))
-            .thenThrow(Exception('Update failed'));
+        when(
+          () => mockProfileRepository.updateUser(any(), any()),
+        ).thenThrow(Exception('Update failed'));
         return profileBloc;
       },
-      act: (bloc) => bloc.add(UpdateUserRequested(mockUser1.id, {"name": "Updated Name"})),
+      act: (bloc) =>
+          bloc.add(UpdateUserRequested(mockUser1.id, {"name": "Updated Name"})),
       expect: () => [
         ProfileLoading(),
         ProfileError('Failed to update user: Exception: Update failed'),

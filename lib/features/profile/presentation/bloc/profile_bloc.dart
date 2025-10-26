@@ -73,16 +73,18 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
 
 
   Future<void> _onCreateUserRequested(
-      CreateUserRequested event, Emitter<ProfileState> emit) async {
-    emit(ProfileLoading());
-    try {
-      await repository.createUser(event.userId, event.user);
-      final newUser = await repository.getUserProfile(event.userId);
-      emit(ProfileLoaded(newUser!));
-    } catch (e) {
-      emit(ProfileError('Failed to create user: $e'));
-    }
+    CreateUserRequested event, Emitter<ProfileState> emit) async {
+  emit(ProfileLoading());
+  try {
+    await repository.createUser(event.user);
+
+    final newUser = await repository.getUserProfile(event.user.id);
+
+    emit(ProfileLoaded(newUser!));
+  } catch (e) {
+    emit(ProfileError('Failed to create user: $e'));
   }
+}
 
   //update user handler
   Future<void> _onUpdateUserRequested(

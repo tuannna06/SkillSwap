@@ -34,13 +34,12 @@ class ProfileRetryRequested extends ProfileEvent {
 }
 
 class CreateUserRequested extends ProfileEvent {
-  final String userId;
   final UserEntity user;
 
-  CreateUserRequested(this.userId, this.user);
+  CreateUserRequested(this.user);
 
   @override
-  List<Object?> get props => [userId, user];
+  List<Object?> get props => [user];
 }
 
 class UpdateUserRequested extends ProfileEvent {

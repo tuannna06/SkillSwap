@@ -43,11 +43,16 @@ class ProfileRepositoryImpl implements ProfileRepository {
   }
 
   @override
-  Future<void> createUser(String userId, UserEntity user) async {
+  Future<String> createUser(UserEntity user) async {
     final userModel = UserModel.fromMap((user as dynamic).toMap());
     final userData = userModel.toMap();
 
-    await remoteDatasource.createUser(userId, userData);
+    try {
+      final userId = await remoteDatasource.createUser(userData);
+      return userId;
+    } catch (e) {
+      throw Exception('Failed to create user: $e');
+    }
   }
 
   @override

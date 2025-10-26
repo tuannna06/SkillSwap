@@ -23,7 +23,7 @@ class ProfileRepositoryImpl implements ProfileRepository {
   @override
   Future<void> reloadUserProfile(String userId) async {
     try {
-      //TODO: implement reload user profile
+
       final userData = await remoteDatasource.getUserData(userId);
     } catch (e) {
       // print('Error reloading user profile: $e');
@@ -40,5 +40,23 @@ class ProfileRepositoryImpl implements ProfileRepository {
         .handleError((error) {
           // print('Error streaming user profile: $error');
         });
+  }
+
+  @override
+  Future<void> createUser(String userId, UserEntity user) async {
+    final userModel = UserModel.fromMap((user as dynamic).toMap());
+    final userData = userModel.toMap();
+
+    await remoteDatasource.createUser(userId, userData);
+  }
+
+  @override
+  Future<void> updateUser(String userId, Map<String, dynamic> updates) async {
+    await remoteDatasource.updateUser(userId, updates);
+  }
+
+  @override
+  Future<void> deleteUser(String userId) async {
+    await remoteDatasource.deleteUser(userId);
   }
 }

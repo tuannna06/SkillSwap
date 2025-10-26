@@ -289,7 +289,7 @@ class _CreatePostPageState extends State<CreatePostPage> {
               location: locationController.text,
               timestamp: DateTime.now(),
               isRequest: isRequest,
-              neededSkills: skillsController.text.split(','),
+              neededSkills: skillsController.text.isEmpty ? [] : skillsController.text.split(','),
             );
 
             context.read<PostsBloc>().add(CreateNewPostRequested(newPost));

@@ -5,7 +5,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class PostModel extends PostEntity {
   const PostModel({
   required super.category,
-    required super.postId,
+    super.postId,
     required super.title,
     super.description,
     required super.authorId,

@@ -21,7 +21,6 @@ class PostModel extends PostEntity {
   Map<String, dynamic> toMap() {
     return {
       'category' : category.name,
-      'postId': postId,
       'title': title,
       'description': description,
       'authorId': authorId,

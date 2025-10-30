@@ -1,27 +1,30 @@
 import 'package:equatable/equatable.dart';
 
-abstract class MessagesEvent extends Equatable {
-  const MessagesEvent();
+abstract class MessagesState extends Equatable {
+  const MessagesState();
 
   @override
   List<Object> get props => [];
 }
 
-class LoadMessages extends MessagesEvent {
-  final String conversationId;
+class MessagesInitial extends MessagesState {}
 
-  const LoadMessages(this.conversationId);
+class MessagesLoading extends MessagesState {}
+
+class MessagesLoaded extends MessagesState {
+  final List<dynamic> messages; // Replace dynamic with your message model
+
+  const MessagesLoaded(this.messages);
 
   @override
-  List<Object> get props => [conversationId];
+  List<Object> get props => [messages];
 }
 
-class SendMessage extends MessagesEvent {
-  final String conversationId;
-  final String text;
+class MessagesError extends MessagesState {
+  final String error;
 
-  const SendMessage(this.conversationId, this.text);
+  const MessagesError(this.error);
 
   @override
-  List<Object> get props => [conversationId, text];
+  List<Object> get props => [error];
 }

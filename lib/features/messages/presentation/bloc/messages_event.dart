@@ -7,34 +7,21 @@ abstract class MessagesEvent extends Equatable {
   List<Object> get props => [];
 }
 
-class SendMessageEvent extends MessagesEvent {
-  final String messageText;
+class LoadMessages extends MessagesEvent {
+  final String conversationId;
 
-  const SendMessageEvent(this.messageText);
+  const LoadMessages(this.conversationId);
 
   @override
-  List<Object> get props => [messageText];
+  List<Object> get props => [conversationId];
 }
 
+class SendMessage extends MessagesEvent {
+  final String conversationId;
+  final String text;
 
-class MessagesInitial extends MessagesEvent {}
-
-class MessagesLoading extends MessagesEvent {}
-
-class MessagesLoaded extends MessagesEvent {
-  final List<Messages> messages;
-
-  const MessagesLoaded(this.messages);
+  const SendMessage(this.conversationId, this.text);
 
   @override
-  List<Object> get props => [messages];
-}
-
-class MessagesError extends MessagesEvent {
-  final String error;
-
-  const MessagesError(this.error);
-
-  @override
-  List<Object> get props => [error];
+  List<Object> get props => [conversationId, text];
 }

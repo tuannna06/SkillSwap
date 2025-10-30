@@ -1,12 +1,28 @@
+import 'package:cs222_final/features/messages/data/datasources/messages_remote_data_source.dart';
+import 'package:cs222_final/features/messages/data/repositories/messages_repository_impl.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:cs222_final/components/custom_app_bar.dart';
+
+import 'package:cs222_final/features/messages/presentation/bloc/messages_event.dart';
+import 'package:cs222_final/features/messages/presentation/bloc/messages_state.dart';
+import 'package:cs222_final/features/messages/presentation/bloc/messages_bloc.dart';
+
+import 'package:cs222_final/features/messages/presentation/pages/create_messages_page.dart';
 
 class MessagesPage extends StatelessWidget {
   const MessagesPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return BlocProvider<MessagesBloc>(
+      create: (context) => MessagesBloc(
+        repository: MessagesRepositoryImpl(
+          messagesRemoteDataSource: MessagesRemoteDataSource()
+          )
+        ),
+        
+      child: Scaffold(
       appBar: CustomAppBar(title: 'Messages'),
       body: ListView.builder(
         itemCount: 10,
@@ -25,7 +41,7 @@ class MessagesPage extends StatelessWidget {
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
                 Text(
-                  '3/14/23',
+                  'random date',
                   style: TextStyle(
                     color: Colors.grey[500],
                     fontSize: 12,
@@ -42,7 +58,18 @@ class MessagesPage extends StatelessWidget {
                 fontWeight: FontWeight.w300,
               ),
             ),
-            onTap: () {},
+            onTap: () {
+              final messageBloc = context.read<MessagesBloc>();
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => BlocProvider.value(
+                    value: messageBloc,
+                    child: CreateMessagesPage(),
+                    ),
+                ),
+              );
+            },
             contentPadding: const EdgeInsets.symmetric(
               horizontal: 16,
               vertical: 2,
@@ -55,6 +82,7 @@ class MessagesPage extends StatelessWidget {
             ),
           );
         },
+        ),
       ),
     );
   }

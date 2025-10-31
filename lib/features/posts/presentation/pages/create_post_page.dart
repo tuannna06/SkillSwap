@@ -282,6 +282,7 @@ class _CreatePostPageState extends State<CreatePostPage> {
             if(authState is! Authenticated){
               return;
             }
+
             final newPost = PostEntity(
               category: selectedCategory ?? PostCategory.other,
               postId: '',

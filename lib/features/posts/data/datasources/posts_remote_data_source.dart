@@ -20,16 +20,13 @@ class PostsRemoteDataSource {
     });
   }
 
-  Stream<List<Map<String, dynamic>>> getAllPostsData() {
+  Stream<List<QueryDocumentSnapshot>> getAllPostsData() {
     return postCollection
         .orderBy('timestamp', descending: true)
         .snapshots()
         .map(
           (snapshot) =>
-              snapshot.docs
-                  .map((doc) => {'postId': doc.id, ...doc.data()})
-                  .toList(),
-        );
+              snapshot.docs);
   }
 
   Future<String> createPostData(Map<String, dynamic> postData) async {
@@ -49,7 +46,7 @@ class PostsRemoteDataSource {
   }
 
 
-  Stream<List<Map<String, dynamic>>> getPostsFilteredByTitle(
+  Stream<List<QueryDocumentSnapshot>> getPostsFilteredByTitle(
     List<String> categories,
     List<bool> types,
     String? title,
@@ -68,8 +65,6 @@ class PostsRemoteDataSource {
     } 
     return query.orderBy('timestamp', descending: true).snapshots().map(
           (snapshot) => snapshot.docs
-              .map((doc) => {'postId': doc.id, ...doc.data() as Map<String, dynamic>})
-              .toList(),
         );
   }
 

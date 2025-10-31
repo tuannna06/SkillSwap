@@ -39,7 +39,7 @@ class ProfilePage extends StatelessWidget {
   Widget _buildProfileContent(BuildContext context, UserEntity user) {
     return RefreshIndicator(
       onRefresh: () async {
-        context.read<ProfileBloc>().add(ProfileReloadRequested(userId));
+        context.read<ProfileBloc>().add(ProfileReloadRequested(user.id));
       },
       child: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),

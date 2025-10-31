@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cs222_final/features/posts/data/datasources/posts_remote_data_source.dart';
 import 'package:cs222_final/features/posts/data/models/post_model.dart';
 import 'package:cs222_final/features/posts/domain/entities/post_entity.dart';
@@ -10,14 +11,13 @@ class PostsRepositoryImpl implements PostsRepository {
 
   @override
   Stream<List<PostEntity>> getAllPosts() {
-    final Stream<List<Map<String, dynamic>>> allPostsData =
+    final Stream<List<QueryDocumentSnapshot>> allPostsData =
         postsRemoteDataSource.getAllPostsData();
 
     //convert to list<entity>
-    return allPostsData.map((listOfMaps) {
+    return allPostsData.map((docs) {
       final entities =
-          listOfMaps.map((mapData) => PostModel.fromMap(mapData)).toList();
-
+          docs.map((doc) => PostModel.fromMap(doc.data() as Map<String, dynamic>, doc.id)).toList();
       return entities;
     });
   }
@@ -47,12 +47,12 @@ class PostsRepositoryImpl implements PostsRepository {
 
   @override
   Stream<List<PostEntity>> getPostsFilteredByTitle(List<String> categories, List<bool> types, String? title) {
-    final Stream<List<Map<String, dynamic>>> filteredPostsData =
+    final Stream<List<QueryDocumentSnapshot>> filteredPostsData =
         postsRemoteDataSource.getPostsFilteredByTitle(categories,types,title);
 
-    return filteredPostsData.map((listOfMaps) {
+    return filteredPostsData.map((docs) {
       final entities =
-          listOfMaps.map((mapData) => PostModel.fromMap(mapData)).toList();
+          docs.map((doc) => PostModel.fromMap(doc.data() as Map<String, dynamic>, doc.id)).toList();
 
       return entities;
     });

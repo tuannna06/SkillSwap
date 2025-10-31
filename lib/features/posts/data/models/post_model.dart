@@ -33,10 +33,10 @@ class PostModel extends PostEntity {
     };
   }
 
-  factory PostModel.fromMap(Map<String, dynamic> map) {
+  factory PostModel.fromMap(Map<String, dynamic> map, String docID) {
     return PostModel(
       category: PostCategory.values.byName(map['category'] ?? PostCategory.other.name),
-      postId: map['postId'] ?? '',
+      postId: docID,
       title: map['title'] ?? '',
       description: map['description'],
       authorId: map['authorId'] ?? '',

@@ -1,3 +1,10 @@
 {
-    "cmake.sourceDirectory": "/Users/ryanzhou/fa25-fa25-team004/linux"
+    "cmake.sourceDirectory": "/Users/ryanzhou/fa25-fa25-team004/linux",
+    "terminal.integrated.env.windows": {
+        "CONDA_DEFAULT_ENV": "cs222"
+    },
+    "python.terminal.activateEnvironment": true,
+    "python-envs.defaultEnvManager": "ms-python.python:system",
+    "python-envs.defaultPackageManager": "ms-python.python:pip",
+    "python-envs.pythonProjects": []
 }

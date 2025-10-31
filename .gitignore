@@ -248,3 +248,7 @@ GoogleService-Info.plist
 google-services.json
 # Plugins (already resolved through pubspec.yaml)
 .flutter-plugins
+
+
+server/__pycache__/
+.flutter-plugins-dependencies

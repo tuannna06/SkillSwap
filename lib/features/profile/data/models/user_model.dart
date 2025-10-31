@@ -12,7 +12,6 @@ class UserModel extends UserEntity {
 
   Map<String, dynamic> toMap() {
     return {
-      'id': id,
       'name': name,
       'email': email,
       'phone': phone,
@@ -21,9 +20,9 @@ class UserModel extends UserEntity {
     };
   }
 
-  factory UserModel.fromMap(Map<String, dynamic> map) {
+  factory UserModel.fromMap(Map<String, dynamic> map, String docID) {
     return UserModel(
-      id: map['id'] ?? '',
+      id: docID,
       name: map['name'],
       email: map['email'],
       phone: map['phone'],

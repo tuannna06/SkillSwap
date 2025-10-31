@@ -24,6 +24,8 @@ class _CreatePostPageState extends State<CreatePostPage> {
 
   @override
   Widget build(BuildContext context) {
+    final formKey = GlobalKey<FormState>();
+    var lastPressed = DateTime.now();
     return Scaffold(
       backgroundColor: Colors.grey[100],
       appBar: AppBar(
@@ -261,6 +263,21 @@ class _CreatePostPageState extends State<CreatePostPage> {
             minimumSize: Size(double.infinity, 50),
           ),
           onPressed: () {
+            final now = DateTime.now();
+            if (now.difference(lastPressed) < const Duration(seconds: 2)) {
+              return; // ignore spam tap
+            }
+            lastPressed = now;
+
+            if (!formKey.currentState!.validate()) {
+              // Show popup or snackbar if invalid
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Please fix the errors before posting.'),
+                ),
+              );
+              return;
+            }
             final authState = context.read<AuthBloc>().state;
             if(authState is! Authenticated){
               return;

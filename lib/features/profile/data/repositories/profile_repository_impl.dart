@@ -12,8 +12,8 @@ class ProfileRepositoryImpl implements ProfileRepository {
   @override
   Future<UserEntity?> getUserProfile(String userId) async {
     try {
-      final userData = await remoteDatasource.getUserData(userId);
-      return UserModel.fromMap(userData);
+      final userDoc = await remoteDatasource.getUserData(userId);
+      return UserModel.fromMap(userDoc.data() as Map<String, dynamic>, userDoc.id);
     } catch (e) {
       // print('Error fetching user profile: $e');
       return null;
@@ -34,8 +34,8 @@ class ProfileRepositoryImpl implements ProfileRepository {
   Stream<UserEntity?> getUserProfileStream(String userId) {
     return remoteDatasource
         .getUserProfileStream(userId)
-        .map((userData) {
-          return UserModel.fromMap(userData);
+        .map((userDoc) {
+          return UserModel.fromMap(userDoc.data() as Map<String, dynamic>, userDoc.id);
         })
         .handleError((error) {
           // print('Error streaming user profile: $error');

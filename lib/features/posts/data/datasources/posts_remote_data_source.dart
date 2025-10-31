@@ -3,20 +3,20 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class PostsRemoteDataSource {
   final postCollection = FirebaseFirestore.instance.collection('posts');
 
-  Future<Map<String, dynamic>> getPost(String postId) async {
+  Future<DocumentSnapshot> getPost(String postId) async {
     final DocumentSnapshot doc = await postCollection.doc(postId).get();
     if (!doc.exists) {
       throw Exception('Post not found');
     }
-    return doc.data() as Map<String, dynamic>;
+    return doc;
   }
 
-  Stream<Map<String, dynamic>> getPostStream(String postId) {
+  Stream<DocumentSnapshot> getPostStream(String postId) {
     return postCollection.doc(postId).snapshots().map((doc) {
       if (!doc.exists) {
         throw Exception('Post not found');
       }
-      return doc.data() as Map<String, dynamic>;
+      return doc;
     });
   }
 

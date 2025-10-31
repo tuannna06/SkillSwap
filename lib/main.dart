@@ -1,3 +1,9 @@
+import 'package:cs222_final/features/auth/data/datasources/auth_remote_data_source.dart';
+import 'package:cs222_final/features/auth/data/repositories/auth_repository_impl.dart';
+import 'package:cs222_final/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:cs222_final/features/auth/presentation/bloc/auth_event.dart';
+import 'package:cs222_final/features/auth/presentation/bloc/auth_state.dart';
+import 'package:cs222_final/features/auth/presentation/pages/login_page.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -40,9 +46,41 @@ class MyApp extends StatelessWidget {
                   repository: ProfileRepositoryImpl(ProfileRemoteDatasource()),
                 ),
           ),
+          BlocProvider(
+            create:(context) => AuthBloc(
+              repository: AuthRepositoryImpl(AuthRemoteDataSource())),
+          ),
         ],
-        child: MainNavigationPage(),
+        child: AuthWrapper(),
       ),
+    );
+  }
+}
+
+class AuthWrapper extends StatelessWidget{
+  const AuthWrapper({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<AuthBloc, AuthState>(
+      builder: (context, state) {
+        //Add logic to return different pages based on auth state
+        if(state is AuthInitial){
+          context.read<AuthBloc>().add(AuthCheckRequested());
+          return Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
+        }
+        if(state is AuthLoading){
+          return Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
+        }
+        if(state is Authenticated){
+          return MainNavigationPage();
+        }
+        return LoginPage();
+      },
     );
   }
 }

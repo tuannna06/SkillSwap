@@ -6,5 +6,5 @@ abstract class PostsRepository {
   Future<void> updatePost(String postId, Map<String, dynamic> updates);
   Future<void> deletePost(String postId);
   Stream<List<PostEntity>> getPostsFilteredByTitle(List<String> categories, List<bool> types, String? title);
-  Future<void> deleteAllPosts();
+  Future<void> deleteAllPosts();  
 }

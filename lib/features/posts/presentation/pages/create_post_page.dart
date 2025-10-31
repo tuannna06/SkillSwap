@@ -24,6 +24,8 @@ class _CreatePostPageState extends State<CreatePostPage> {
 
   @override
   Widget build(BuildContext context) {
+    final formKey = GlobalKey<FormState>();
+    var lastPressed = DateTime.now();
     return Scaffold(
       backgroundColor: Colors.grey[100],
       appBar: AppBar(
@@ -40,6 +42,7 @@ class _CreatePostPageState extends State<CreatePostPage> {
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 10),
           child: Form(
+            key: formKey,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -50,6 +53,9 @@ class _CreatePostPageState extends State<CreatePostPage> {
                 ),
                 TextFormField(
                   controller: titleController,
+                  validator: (value) => value == null || value.isEmpty
+                      ? 'Please enter a title for your post!'
+                      : null,
                   decoration: InputDecoration(
                     hintText: 'What do you need/offer?',
                     hintStyle: TextStyle(color: Colors.grey[500]),
@@ -96,15 +102,14 @@ class _CreatePostPageState extends State<CreatePostPage> {
                   child: DropdownMenu<PostCategory>(
                     width: double.infinity,
                     label: Text('Select a category'),
-                    dropdownMenuEntries:
-                        PostCategory.values
-                            .map(
-                              (category) => DropdownMenuEntry(
-                                value: category,
-                                label: category.label,
-                              ),
-                            )
-                            .toList(),
+                    dropdownMenuEntries: PostCategory.values
+                        .map(
+                          (category) => DropdownMenuEntry(
+                            value: category,
+                            label: category.label,
+                          ),
+                        )
+                        .toList(),
                     onSelected: (PostCategory? value) {
                       setState(() {
                         selectedCategory = value;
@@ -124,11 +129,13 @@ class _CreatePostPageState extends State<CreatePostPage> {
                   maxLines: null,
                   minLines: 4,
                   controller: descriptionController,
+                  validator: (value) => value == null || value.length <= 10
+                      ? 'Please use at least 10 characters to describe your post!'
+                      : null,
                   decoration: InputDecoration(
-                    hintText:
-                        isRequest
-                            ? 'Describe your request in detail...'
-                            : 'Describe your offer in detail...',
+                    hintText: isRequest
+                        ? 'Describe your request in detail...'
+                        : 'Describe your offer in detail...',
                     hintStyle: TextStyle(color: Colors.grey[500]),
                     filled: true,
                     fillColor: Colors.white,
@@ -159,10 +166,9 @@ class _CreatePostPageState extends State<CreatePostPage> {
                   minLines: 4,
                   controller: skillsController,
                   decoration: InputDecoration(
-                    hintText:
-                        isRequest
-                            ? 'List skills you need'
-                            : 'List skills you offer',
+                    hintText: isRequest
+                        ? 'List skills you need'
+                        : 'List skills you offer',
                     hintStyle: TextStyle(color: Colors.grey[500]),
                     filled: true,
                     fillColor: Colors.white,
@@ -225,10 +231,9 @@ class _CreatePostPageState extends State<CreatePostPage> {
                   maxLines: null,
                   minLines: 4,
                   decoration: InputDecoration(
-                    hintText:
-                        isRequest
-                            ? 'Describe what you can offer in return...'
-                            : 'Describe what you want to get in return',
+                    hintText: isRequest
+                        ? 'Describe what you can offer in return...'
+                        : 'Describe what you want to get in return',
                     hintStyle: TextStyle(color: Colors.grey[500]),
                     filled: true,
                     fillColor: Colors.white,
@@ -261,13 +266,24 @@ class _CreatePostPageState extends State<CreatePostPage> {
             minimumSize: Size(double.infinity, 50),
           ),
           onPressed: () {
-            final authState = context.read<AuthBloc>().state;
-            if(authState is! Authenticated){
+            final now = DateTime.now();
+            if (now.difference(lastPressed) < const Duration(seconds: 2)) {
+              return; // ignore spam tap
+            }
+            lastPressed = now;
+
+            if (!formKey.currentState!.validate()) {
+              // Show popup or snackbar if invalid
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Please fix the errors before posting.'),
+                ),
+              );
               return;
             }
+
             final newPost = PostEntity(
               category: selectedCategory ?? PostCategory.other,
-              postId: '',
               title: titleController.text,
               description: descriptionController.text,
               authorId: authState.user.uid,
@@ -275,7 +291,7 @@ class _CreatePostPageState extends State<CreatePostPage> {
               location: locationController.text,
               timestamp: DateTime.now(),
               isRequest: isRequest,
-              neededSkills: skillsController.text.split(','),
+              neededSkills: skillsController.text.isEmpty ? [] : skillsController.text.split(','),
             );
 
             context.read<PostsBloc>().add(CreateNewPostRequested(newPost));
@@ -304,10 +320,9 @@ class _CreatePostPageState extends State<CreatePostPage> {
       child: Container(
         height: 50,
         decoration: BoxDecoration(
-          color:
-              isSelected
-                  ? const Color.fromARGB(255, 5, 130, 232)
-                  : Colors.blue[100],
+          color: isSelected
+              ? const Color.fromARGB(255, 5, 130, 232)
+              : Colors.blue[100],
           borderRadius: BorderRadius.circular(8),
         ),
         child: Center(

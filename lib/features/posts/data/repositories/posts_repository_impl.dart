@@ -39,12 +39,7 @@ class PostsRepositoryImpl implements PostsRepository {
   Future<void> deletePost(String postId) async {
     await postsRemoteDataSource.deletePost(postId);
   }
-
-  @override
-  Stream<List<PostEntity>> getPostsByLocation(String location) {
-    throw UnimplementedError("Location filtering is not yet implemented");
-  }
-
+  
   @override
   Future<void> deleteAllPosts() async {
     await postsRemoteDataSource.deleteAllPosts();

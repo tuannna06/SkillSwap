@@ -281,9 +281,14 @@ class _CreatePostPageState extends State<CreatePostPage> {
               );
               return;
             }
+            final authState = context.read<AuthBloc>().state;
+            if(authState is! Authenticated){
+              return;
+            }
 
             final newPost = PostEntity(
               category: selectedCategory ?? PostCategory.other,
+              postId: '',
               title: titleController.text,
               description: descriptionController.text,
               authorId: authState.user.uid,

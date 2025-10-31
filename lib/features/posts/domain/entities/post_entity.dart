@@ -16,7 +16,7 @@ class PostEntity extends Equatable {
 
   const PostEntity({
     required this.category,
-    this.postId = '',
+    required this.postId,
     required this.title,
     this.description,
     required this.authorId,

@@ -42,18 +42,18 @@ class ProfileRepositoryImpl implements ProfileRepository {
         });
   }
 
-  @override
-  Future<String> createUser(UserEntity user) async {
-    final userModel = UserModel.fromMap((user as dynamic).toMap());
-    final userData = userModel.toMap();
+  // @override
+  // Future<String> createUser(UserEntity user) async {
+  //   final userModel = UserModel.fromMap((user as dynamic).toMap());
+  //   final userData = userModel.toMap();
 
-    try {
-      final userId = await remoteDatasource.createUser(userData);
-      return userId;
-    } catch (e) {
-      throw Exception('Failed to create user: $e');
-    }
-  }
+  //   try {
+  //     final userId = await remoteDatasource.createUser(userData);
+  //     return userId;
+  //   } catch (e) {
+  //     throw Exception('Failed to create user: $e');
+  //   }
+  // }
 
   @override
   Future<void> updateUser(String userId, Map<String, dynamic> updates) async {

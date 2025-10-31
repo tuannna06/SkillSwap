@@ -1,3 +1,5 @@
+import 'package:cs222_final/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:cs222_final/features/auth/presentation/bloc/auth_state.dart';
 import 'package:cs222_final/features/posts/domain/entities/post_category.dart';
 import 'package:flutter/material.dart';
 import 'package:cs222_final/features/posts/domain/entities/post_entity.dart';
@@ -259,13 +261,17 @@ class _CreatePostPageState extends State<CreatePostPage> {
             minimumSize: Size(double.infinity, 50),
           ),
           onPressed: () {
+            final authState = context.read<AuthBloc>().state;
+            if(authState is! Authenticated){
+              return;
+            }
             final newPost = PostEntity(
               category: selectedCategory ?? PostCategory.other,
-              postId: DateTime.now().millisecondsSinceEpoch.toString(),
+              postId: '',
               title: titleController.text,
               description: descriptionController.text,
-              authorId: "temp-user-id",
-              authorName: "authorName",
+              authorId: authState.user.uid,
+              authorName: authState.user.displayName ?? 'Anonymous',
               location: locationController.text,
               timestamp: DateTime.now(),
               isRequest: isRequest,

@@ -1,3 +1,4 @@
+import 'package:cs222_final/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:cs222_final/components/custom_app_bar.dart';
@@ -112,11 +113,15 @@ class _PostsPageState extends State<PostsPage> {
             child: Icon(Icons.add),
             onPressed: () {
               final postsBloc = context.read<PostsBloc>();
+              final authBloc = context.read<AuthBloc>();
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => BlocProvider.value(
-                    value: postsBloc,
+                  builder: (context) => MultiBlocProvider(
+                    providers: [
+                      BlocProvider.value(value: postsBloc),
+                      BlocProvider.value(value: authBloc),
+                    ],
                     child: CreatePostPage(),
                   ),
                 ),

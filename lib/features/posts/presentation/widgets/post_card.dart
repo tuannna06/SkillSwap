@@ -82,10 +82,10 @@ class PostCard extends StatelessWidget {
                 
                 // TODO: Add skills and location footer section
               
-                Text('${post.isRequest ? 'Skills Needed: ' : 'Skill Offered: '}${post.neededSkills.join(', ')}'),
+                Text('${post.isRequest ? 'Skills Needed: ' : 'Skill Offered: '}${post.neededSkills.isEmpty ? 'None' : post.neededSkills.join(', ')}'),
 
                 const SizedBox(height: 16),
-                Text('Location: ${post.location ?? 'N/A'}'),
+                Text('Location: ${post.location?.isNotEmpty ?? false ? post.location : 'N/A'}'),
               ],
             ),
           ),
@@ -101,7 +101,7 @@ class PostCard extends StatelessWidget {
           radius: 16,
           backgroundColor: Colors.grey.shade300,
           child: Text(
-            post.authorName.isNotEmpty ? post.authorName[0].toUpperCase() : '?',
+            post.authorName.isNotEmpty ? post.authorName[0].toUpperCase() : '(no info)',
             style: const TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w600,

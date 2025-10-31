@@ -105,6 +105,8 @@ class _PostsPageState extends State<PostsPage> {
         ],
       ),
 
+
+      //add posts
       floatingActionButton: Builder(
         builder: (context) {
           return FloatingActionButton(
@@ -431,5 +433,3 @@ class _PostsPageState extends State<PostsPage> {
     );
   }
 }
-
-//Temp Base code provided by ChatGPT

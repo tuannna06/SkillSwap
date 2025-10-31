@@ -6,7 +6,7 @@ class PostsRemoteDataSource {
   Future<Map<String, dynamic>> getPost(String postId) async {
     final DocumentSnapshot doc = await postCollection.doc(postId).get();
     if (!doc.exists) {
-      throw Exception('User not found');
+      throw Exception('Post not found');
     }
     return doc.data() as Map<String, dynamic>;
   }

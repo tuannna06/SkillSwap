@@ -42,8 +42,6 @@ class LoginPage extends StatelessWidget {
               // Google Sign-In Button
               ElevatedButton.icon(
                 onPressed: () {
-                  // Will add functionality later
-                  print('Google Sign-In clicked');
                 },
                 icon: Icon(Icons.g_mobiledata, size: 32),
                 label: Text(

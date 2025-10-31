@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:cs222_final/components/custom_app_bar.dart';
+import 'package:cs222_final/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:cs222_final/features/auth/presentation/bloc/auth_event.dart';
 import 'package:cs222_final/features/profile/domain/entities/user_entity.dart';
 import 'package:cs222_final/features/profile/presentation/bloc/profile_bloc.dart';
 import 'package:cs222_final/features/profile/presentation/bloc/profile_event.dart';
@@ -80,6 +82,24 @@ class ProfilePage extends StatelessWidget {
               else
                 ...user.offeredSkills.map((skill) => Chip(label: Text(skill))),
             ]),
+            const SizedBox(height: 24),
+
+            //Sign Out Button
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () {
+                  context.read<AuthBloc>().add(SignOutRequested());
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.red,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                ),
+                child: const Text('Sign Out', style: TextStyle(fontSize: 16)),
+              ),
+            ),
+            const SizedBox(height: 16),
           ],
         ),
       ),

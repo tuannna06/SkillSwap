@@ -19,8 +19,7 @@ class AuthRemoteDataSource {
   }
 
   Future<User?> signInWithGoogle() async {
-    final GoogleSignInAccount? googleUser = await GoogleSignIn.instance.authenticate();
-    if (googleUser == null) return null; 
+    final GoogleSignInAccount googleUser = await GoogleSignIn.instance.authenticate();
 
     final GoogleSignInAuthentication googleAuth = googleUser.authentication;
     final String? idToken = googleAuth.idToken;

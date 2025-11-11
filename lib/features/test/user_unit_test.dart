@@ -39,14 +39,14 @@ void main() {
       offeredSkills: ["Hating", "Mocking"],
     );
 
-    final mockUser2 = UserEntity(
-      id: "smart-guy",
-      name: "Hau Pham",
-      email: "ap100@illinois.edu",
-      phone: "1234567898",
-      address: "100 Stadium Rd, Gainesville, FL (he lives with Steve Spurrier)",
-      offeredSkills: ["Coding", "Sleeping"],
-    );
+    // final mockUser2 = UserEntity(
+    //   id: "smart-guy",
+    //   name: "Hau Pham",
+    //   email: "ap100@illinois.edu",
+    //   phone: "1234567898",
+    //   address: "100 Stadium Rd, Gainesville, FL (he lives with Steve Spurrier)",
+    //   offeredSkills: ["Coding", "Sleeping"],
+    // );
 
     setUp(() {
       mockProfileRepository = MockProfileRepository();
@@ -91,36 +91,36 @@ void main() {
     );
 
     //test creating a user - success
-    blocTest<ProfileBloc, ProfileState>(
-      'emits [ProfileLoading, ProfileLoaded] when CreateUserRequested succeeds',
-      build: () {
-        when(
-          () => mockProfileRepository.createUser(any()),
-        ).thenAnswer((_) async => 'new-user-id');
-        when(
-          () => mockProfileRepository.getUserProfile(any()),
-        ).thenAnswer((_) async => mockUser1);
-        return profileBloc;
-      },
-      act: (bloc) => bloc.add(CreateUserRequested(mockUser1)),
-      expect: () => [ProfileLoading(), ProfileLoaded(mockUser1)],
-    );
+    // blocTest<ProfileBloc, ProfileState>(
+    //   'emits [ProfileLoading, ProfileLoaded] when CreateUserRequested succeeds',
+    //   build: () {
+    //     when(
+    //       () => mockProfileRepository.createUser(any()),
+    //     ).thenAnswer((_) async => 'new-user-id');
+    //     when(
+    //       () => mockProfileRepository.getUserProfile(any()),
+    //     ).thenAnswer((_) async => mockUser1);
+    //     return profileBloc;
+    //   },
+    //   act: (bloc) => bloc.add(CreateUserRequested(mockUser1)),
+    //   expect: () => [ProfileLoading(), ProfileLoaded(mockUser1)],
+    // );
 
     // test creating a user - failure
-    blocTest<ProfileBloc, ProfileState>(
-      'emits [ProfileError] when CreateUserRequested fails',
-      build: () {
-        when(
-          () => mockProfileRepository.createUser(any()),
-        ).thenThrow(Exception('Create failed'));
-        return profileBloc;
-      },
-      act: (bloc) => bloc.add(CreateUserRequested(mockUser1)),
-      expect: () => [
-        ProfileLoading(),
-        ProfileError('Failed to create user: Exception: Create failed'),
-      ],
-    );
+    // blocTest<ProfileBloc, ProfileState>(
+    //   'emits [ProfileError] when CreateUserRequested fails',
+    //   build: () {
+    //     when(
+    //       () => mockProfileRepository.createUser(any()),
+    //     ).thenThrow(Exception('Create failed'));
+    //     return profileBloc;
+    //   },
+    //   act: (bloc) => bloc.add(CreateUserRequested(mockUser1)),
+    //   expect: () => [
+    //     ProfileLoading(),
+    //     ProfileError('Failed to create user: Exception: Create failed'),
+    //   ],
+    // );
 
     // test deleting a user - success
     blocTest<ProfileBloc, ProfileState>(

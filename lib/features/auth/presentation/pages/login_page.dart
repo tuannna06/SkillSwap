@@ -1,11 +1,23 @@
+import 'package:cs222_final/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:cs222_final/features/auth/presentation/bloc/auth_event.dart';
+import 'package:cs222_final/features/auth/presentation/bloc/auth_state.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class LoginPage extends StatelessWidget {
   const LoginPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return BlocListener<AuthBloc, AuthState>(
+      listener: (context, state) {
+        if (state is AuthError){
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(state.message))
+          );
+        }
+      },
+      child: Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
         child: Padding(
@@ -42,8 +54,7 @@ class LoginPage extends StatelessWidget {
               // Google Sign-In Button
               ElevatedButton.icon(
                 onPressed: () {
-                  // Will add functionality later
-                  print('Google Sign-In clicked');
+                  context.read<AuthBloc>().add(SignInWithGoogleRequested());
                 },
                 icon: Icon(Icons.g_mobiledata, size: 32),
                 label: Text(
@@ -65,6 +76,8 @@ class LoginPage extends StatelessWidget {
           ),
         ),
       ),
+    )
     );
+    
   }
 }

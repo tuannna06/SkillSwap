@@ -21,11 +21,11 @@ class _CreatePostPageState extends State<CreatePostPage> {
   final locationController = TextEditingController();
   final skillsController = TextEditingController();
   PostCategory? selectedCategory;
+  final formKey = GlobalKey<FormState>();
+  var lastPressed = DateTime.now();
 
   @override
   Widget build(BuildContext context) {
-    final formKey = GlobalKey<FormState>();
-    var lastPressed = DateTime.now();
     return Scaffold(
       backgroundColor: Colors.grey[100],
       appBar: AppBar(
@@ -42,6 +42,7 @@ class _CreatePostPageState extends State<CreatePostPage> {
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 10),
           child: Form(
+            key: formKey,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [

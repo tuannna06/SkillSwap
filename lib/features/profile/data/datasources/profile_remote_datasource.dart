@@ -22,7 +22,7 @@ class ProfileRemoteDatasource {
   Future<String> createUser(Map<String, dynamic> userData) async {
   try {
     final docRef = await userCollection.add(userData);
-    userData['id'] = docRef.id;
+    // userData['id'] = docRef.id;
     return docRef.id;
   } catch (e) {
     throw Exception('Failed to create user: $e');

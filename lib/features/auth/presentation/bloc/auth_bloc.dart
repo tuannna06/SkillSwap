@@ -1,6 +1,8 @@
 
 import 'package:cs222_final/features/auth/domain/repositories/auth_repository.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'auth_event.dart';
 import 'auth_state.dart';
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
@@ -14,6 +16,26 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<SignOutRequested>(_onSignOutRequested);
   }
 
+  Future<void> _createUserProfileIfNotExists(User user) async {
+    try{
+      final userDoc = await FirebaseFirestore.instance.collection('users').doc(user.uid).get();
+
+      //create user profile if it does not exist
+      if(!userDoc.exists){
+        await FirebaseFirestore.instance.collection('users').doc(user.uid).set({
+          'name': user.displayName ?? '',
+          'email': user.email ?? '',
+          'phone' : null,
+          'address' : null,
+          'offeredSkills' : [],
+        });
+      }
+    } catch (e) {
+      // Handle errors
+      print('Error creating user profile: $e');
+    }
+  }
+
 
   Future<void> _onAuthCheckRequested(
     AuthCheckRequested event,
@@ -22,6 +44,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     try{
       final user = repository.getCurrentUser();
       if (user != null){
+        await _createUserProfileIfNotExists(user);
         emit(Authenticated(user));
       } else {
         emit(Unauthenticated());
@@ -70,6 +93,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     try{
       final user = await repository.signInWithGoogle();
       if (user != null){
+        await _createUserProfileIfNotExists(user);
         emit(Authenticated(user));
       } else {
         emit(Unauthenticated());

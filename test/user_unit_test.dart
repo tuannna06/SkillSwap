@@ -90,6 +90,7 @@ void main() {
       ],
     );
 
+    //tests fixed next week
     //test creating a user - success
     // blocTest<ProfileBloc, ProfileState>(
     //   'emits [ProfileLoading, ProfileLoaded] when CreateUserRequested succeeds',

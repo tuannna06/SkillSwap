@@ -1,16 +1,8 @@
 import 'package:flutter/material.dart';
 
-enum PostCategory {
-  programming,
-  design,
-  academic,
-  manualLabor,
-  sports,
-  other,
-}
+enum PostCategory { programming, design, academic, manualLabor, sports, other }
 
 extension PostCategoryExtension on PostCategory {
-
   String get label {
     switch (this) {
       case PostCategory.programming:

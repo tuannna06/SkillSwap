@@ -24,9 +24,7 @@ class PostsRemoteDataSource {
     return postCollection
         .orderBy('timestamp', descending: true)
         .snapshots()
-        .map(
-          (snapshot) =>
-              snapshot.docs);
+        .map((snapshot) => snapshot.docs);
   }
 
   Future<String> createPostData(Map<String, dynamic> postData) async {
@@ -45,7 +43,6 @@ class PostsRemoteDataSource {
     await postCollection.doc(postId).delete();
   }
 
-
   Stream<List<QueryDocumentSnapshot>> getPostsFilteredByTitle(
     List<String> categories,
     List<bool> types,
@@ -62,10 +59,11 @@ class PostsRemoteDataSource {
           .orderBy('title')
           .where('title', isGreaterThanOrEqualTo: title)
           .where('title', isLessThanOrEqualTo: '$title\uf8ff');
-    } 
-    return query.orderBy('timestamp', descending: true).snapshots().map(
-          (snapshot) => snapshot.docs
-        );
+    }
+    return query
+        .orderBy('timestamp', descending: true)
+        .snapshots()
+        .map((snapshot) => snapshot.docs);
   }
 
   Future<void> deleteAllPosts() async {
@@ -78,5 +76,4 @@ class PostsRemoteDataSource {
 
     await batch.commit();
   }
-  
 }

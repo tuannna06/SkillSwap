@@ -9,17 +9,24 @@ class AuthRemoteDataSource {
   Stream<User?> get authStateChanges => _firebaseAuth.authStateChanges();
 
   Future<User?> signInWithEmailPassword(String email, String password) async {
-    final userCredential = await _firebaseAuth.signInWithEmailAndPassword(email: email, password: password);
+    final userCredential = await _firebaseAuth.signInWithEmailAndPassword(
+      email: email,
+      password: password,
+    );
     return userCredential.user;
   }
 
   Future<User?> signUpWithEmailPassword(String email, String password) async {
-    final userCredential = await _firebaseAuth.createUserWithEmailAndPassword(email: email, password: password);
+    final userCredential = await _firebaseAuth.createUserWithEmailAndPassword(
+      email: email,
+      password: password,
+    );
     return userCredential.user;
   }
 
   Future<User?> signInWithGoogle() async {
-    final GoogleSignInAccount googleUser = await GoogleSignIn.instance.authenticate();
+    final GoogleSignInAccount googleUser = await GoogleSignIn.instance
+        .authenticate();
 
     final GoogleSignInAuthentication googleAuth = googleUser.authentication;
     final String? idToken = googleAuth.idToken;
@@ -39,5 +46,4 @@ class AuthRemoteDataSource {
   }
 
   User? getCurrentUser() => _firebaseAuth.currentUser;
-
 }

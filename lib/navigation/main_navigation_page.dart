@@ -18,7 +18,7 @@ class MainNavigationPage extends StatefulWidget {
 class _MainNavigationPageState extends State<MainNavigationPage> {
   int _selectedIndex = 0;
 
-  List<Widget> _getPages(BuildContext context){
+  List<Widget> _getPages(BuildContext context) {
     final authState = context.read<AuthBloc>().state;
     final userId = authState is Authenticated ? authState.user.uid : "";
     return [

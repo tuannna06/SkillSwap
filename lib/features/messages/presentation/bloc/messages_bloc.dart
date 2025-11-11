@@ -6,6 +6,6 @@ import 'package:cs222_final/features/messages/domain/repositories/messages_repos
 class MessagesBloc extends Bloc<MessagesEvent, MessagesState> {
   final MessagesRepository repository;
 
-  MessagesBloc({required this.repository}) : super(MessagesInitial()); //constructor
-
+  MessagesBloc({required this.repository})
+    : super(MessagesInitial()); //constructor
 }

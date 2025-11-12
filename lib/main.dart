@@ -35,20 +35,19 @@ class MyApp extends StatelessWidget {
       home: MultiBlocProvider(
         providers: [
           BlocProvider(
-            create:
-                (context) => PostsBloc(
-                  repository: PostsRepositoryImpl(PostsRemoteDataSource()),
-                ),
+            create: (context) => PostsBloc(
+              repository: PostsRepositoryImpl(PostsRemoteDataSource()),
+            ),
           ),
           BlocProvider(
-            create:
-                (context) => ProfileBloc(
-                  repository: ProfileRepositoryImpl(ProfileRemoteDatasource()),
-                ),
+            create: (context) => ProfileBloc(
+              repository: ProfileRepositoryImpl(ProfileRemoteDatasource()),
+            ),
           ),
           BlocProvider(
-            create:(context) => AuthBloc(
-              repository: AuthRepositoryImpl(AuthRemoteDataSource())),
+            create: (context) => AuthBloc(
+              repository: AuthRepositoryImpl(AuthRemoteDataSource()),
+            ),
           ),
         ],
         child: AuthWrapper(),
@@ -57,7 +56,7 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class AuthWrapper extends StatelessWidget{
+class AuthWrapper extends StatelessWidget {
   const AuthWrapper({super.key});
 
   @override
@@ -65,18 +64,14 @@ class AuthWrapper extends StatelessWidget{
     return BlocBuilder<AuthBloc, AuthState>(
       builder: (context, state) {
         //Add logic to return different pages based on auth state
-        if(state is AuthInitial){
+        if (state is AuthInitial) {
           context.read<AuthBloc>().add(AuthCheckRequested());
-          return Scaffold(
-            body: Center(child: CircularProgressIndicator()),
-          );
+          return Scaffold(body: Center(child: CircularProgressIndicator()));
         }
-        if(state is AuthLoading){
-          return Scaffold(
-            body: Center(child: CircularProgressIndicator()),
-          );
+        if (state is AuthLoading) {
+          return Scaffold(body: Center(child: CircularProgressIndicator()));
         }
-        if(state is Authenticated){
+        if (state is Authenticated) {
           return MainNavigationPage();
         }
         return LoginPage();

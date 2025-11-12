@@ -46,9 +46,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
           if (state is Authenticated) {
             Navigator.pushReplacementNamed(context, '/home');
           } else if (state is AuthError) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(state.message)),
-            );
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(SnackBar(content: Text(state.message)));
           }
         },
         child: Padding(

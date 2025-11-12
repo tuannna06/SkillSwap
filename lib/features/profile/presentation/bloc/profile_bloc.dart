@@ -71,24 +71,25 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
     }
   }
 
+  //   Future<void> _onCreateUserRequested(
+  //     CreateUserRequested event, Emitter<ProfileState> emit) async {
+  //   emit(ProfileLoading());
+  //   try {
+  //     await repository.createUser(event.user);
 
-//   Future<void> _onCreateUserRequested(
-//     CreateUserRequested event, Emitter<ProfileState> emit) async {
-//   emit(ProfileLoading());
-//   try {
-//     await repository.createUser(event.user);
+  //     final newUser = await repository.getUserProfile(event.user.id);
 
-//     final newUser = await repository.getUserProfile(event.user.id);
-
-//     emit(ProfileLoaded(newUser!));
-//   } catch (e) {
-//     emit(ProfileError('Failed to create user: $e'));
-//   }
-// }
+  //     emit(ProfileLoaded(newUser!));
+  //   } catch (e) {
+  //     emit(ProfileError('Failed to create user: $e'));
+  //   }
+  // }
 
   //update user handler
   Future<void> _onUpdateUserRequested(
-      UpdateUserRequested event, Emitter<ProfileState> emit) async {
+    UpdateUserRequested event,
+    Emitter<ProfileState> emit,
+  ) async {
     emit(ProfileLoading());
     try {
       await repository.updateUser(event.userId, event.updates);
@@ -101,7 +102,9 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
 
   //delete user handler
   Future<void> _onDeleteUserRequested(
-      DeleteUserRequested event, Emitter<ProfileState> emit) async {
+    DeleteUserRequested event,
+    Emitter<ProfileState> emit,
+  ) async {
     emit(ProfileLoading());
     try {
       await repository.deleteUser(event.userId);

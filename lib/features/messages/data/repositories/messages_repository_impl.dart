@@ -9,14 +9,11 @@ class MessagesRepositoryImpl implements MessagesRepository {
 
   @override
   Future<List<Messages>> getMessages(String conversationId) async {
-   
     throw UnimplementedError();
   }
 
   @override
-  Future<void> sendMessage(String conversationId, Messages message) async {
-    
-  }
+  Future<void> sendMessage(String conversationId, Messages message) async {}
 
   @override
   Future<String> createConversation(List<String> participantIds) async {
@@ -24,7 +21,9 @@ class MessagesRepositoryImpl implements MessagesRepository {
   }
 
   @override
-  Future<void> markMessageAsRead(String conversationId, String messageId, String userId) async {
-
-  }
+  Future<void> markMessageAsRead(
+    String conversationId,
+    String messageId,
+    String userId,
+  ) async {}
 }

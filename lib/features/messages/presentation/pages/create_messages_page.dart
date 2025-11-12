@@ -16,16 +16,16 @@ class _CreateMessagesPageState extends State<CreateMessagesPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(title: Text('Messages')),
-        body: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: TextField(
-            decoration: const InputDecoration(
-              hintText: 'Enter your message here',
-              border: OutlineInputBorder(),
-            ),
+      appBar: AppBar(title: Text('Messages')),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: TextField(
+          decoration: const InputDecoration(
+            hintText: 'Enter your message here',
+            border: OutlineInputBorder(),
           ),
         ),
+      ),
     );
   }
 }

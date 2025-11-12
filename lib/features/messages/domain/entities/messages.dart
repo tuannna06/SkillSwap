@@ -25,10 +25,6 @@ class Messages {
 
   // Convert a Messages object to a map for Firestore
   Map<String, dynamic> toMap() {
-    return {
-      'senderId': senderId,
-      'text': text,
-      'timestamp': timestamp,
-    };
+    return {'senderId': senderId, 'text': text, 'timestamp': timestamp};
   }
 }

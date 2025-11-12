@@ -89,15 +89,21 @@ class PostsBloc extends Bloc<PostsEvent, PostsState> {
   }
 
   Future<void> _onFilterPosts(
-      FilterPosts event,
-      Emitter<PostsState> emit,
-      )async{
+    FilterPosts event,
+    Emitter<PostsState> emit,
+  ) async {
     emit(PostsLoading());
-    try{
-      await emit.forEach(repository.getPostsFilteredByTitle(event.category, event.type, event.title),
-      onData: (List<PostEntity> posts) => PostsLoaded(posts),
-      onError: (error, _) => PostsError(error.toString()));
-    } catch(e){
+    try {
+      await emit.forEach(
+        repository.getPostsFilteredByTitle(
+          event.category,
+          event.type,
+          event.title,
+        ),
+        onData: (List<PostEntity> posts) => PostsLoaded(posts),
+        onError: (error, _) => PostsError(error.toString()),
+      );
+    } catch (e) {
       emit(PostsError(e.toString()));
     }
   }

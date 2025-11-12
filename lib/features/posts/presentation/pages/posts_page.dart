@@ -106,7 +106,6 @@ class _PostsPageState extends State<PostsPage> {
         ],
       ),
 
-
       //add posts
       floatingActionButton: Builder(
         builder: (context) {
@@ -286,9 +285,7 @@ class _PostsPageState extends State<PostsPage> {
         rows.add(const SizedBox(height: 8));
       }
     }
-    return Column(
-      children: rows,
-    );  
+    return Column(children: rows);
   }
 
   Widget _buildCategoryChipsRow(List<PostCategory> rowCategories) {
@@ -345,7 +342,9 @@ class _PostsPageState extends State<PostsPage> {
           boxShadow: isSelected
               ? [
                   BoxShadow(
-                    color: Theme.of(context).primaryColor.withAlpha((0.3 * 255).round()),
+                    color: Theme.of(
+                      context,
+                    ).primaryColor.withAlpha((0.3 * 255).round()),
                     blurRadius: 12,
                     offset: const Offset(0, 4),
                   ),
@@ -403,7 +402,9 @@ class _PostsPageState extends State<PostsPage> {
           boxShadow: isSelected
               ? [
                   BoxShadow(
-                    color: Theme.of(context).primaryColor.withAlpha((0.3 * 255).round()),
+                    color: Theme.of(
+                      context,
+                    ).primaryColor.withAlpha((0.3 * 255).round()),
                     blurRadius: 12,
                     offset: const Offset(0, 4),
                   ),

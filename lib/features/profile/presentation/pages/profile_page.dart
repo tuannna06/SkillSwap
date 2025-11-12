@@ -8,19 +8,54 @@ import 'package:cs222_final/features/profile/presentation/bloc/profile_bloc.dart
 import 'package:cs222_final/features/profile/presentation/bloc/profile_event.dart';
 import 'package:cs222_final/features/profile/presentation/bloc/profile_state.dart';
 
-class ProfilePage extends StatelessWidget {
+class ProfilePage extends StatefulWidget {
   final String userId;
 
   const ProfilePage(Set<String> set, {super.key, required this.userId});
 
   @override
+  State<ProfilePage> createState() => _ProfilePageState();
+}
+
+class _ProfilePageState extends State<ProfilePage> {
+  bool isEditing = false;
+
+  // Controllers for editable fields
+  final phoneController = TextEditingController();
+  final addressController = TextEditingController();
+  final skillController = TextEditingController();
+  final List<String> skills = [];
+
+  @override
+  void dispose() {
+    phoneController.dispose();
+    addressController.dispose();
+    skillController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBar(title: 'Profile'),
-      body: BlocBuilder<ProfileBloc, ProfileState>(
+      body: BlocConsumer<ProfileBloc, ProfileState>(
+        listener: (context, state) {
+          if (state is ProfileLoaded) {
+            phoneController.text = state.user.phone ?? '';
+            addressController.text = state.user.address ?? '';
+            skills
+              ..clear()
+              ..addAll(state.user.offeredSkills);
+          }
+          if (state is ProfileError) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(state.message)),
+            );
+          }
+        },
         builder: (context, state) {
           if (state is ProfileInitial) {
-            context.read<ProfileBloc>().add(ProfileLoadRequested(userId));
+            context.read<ProfileBloc>().add(ProfileLoadRequested(widget.userId));
             return const Center(child: CircularProgressIndicator());
           }
           if (state is ProfileLoading) {
@@ -44,47 +79,44 @@ class ProfilePage extends StatelessWidget {
         context.read<ProfileBloc>().add(ProfileReloadRequested(user.id));
       },
       child: SingleChildScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            //Avatar
+            // Avatar
             CircleAvatar(
               radius: 50,
               backgroundColor: Colors.blue.shade100,
-              child: Icon(
-                Icons.person_outline,
-                size: 50,
-                color: Colors.blue.shade700,
-              ),
+              child: Icon(Icons.person_outline, size: 50, color: Colors.blue.shade700),
             ),
             const SizedBox(height: 16),
 
-            //User Name
+            // Name
             Text(
               user.name ?? "No name",
               style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
-            const SizedBox(height: 24),
-
-            //contact info
-            _buildInfoCard('Contact Information', [
-              _buildInfoRow(Icons.email, user.email ?? 'No Email'),
-              _buildInfoRow(Icons.phone, user.phone ?? 'No Phone'),
-              _buildInfoRow(Icons.location_on, user.address ?? 'No Address'),
-            ]),
             const SizedBox(height: 16),
 
-            //Skilss
-            _buildInfoCard('Skills', [
-              if (user.offeredSkills.isEmpty)
-                const Text('No skill listed')
-              else
-                ...user.offeredSkills.map((skill) => Chip(label: Text(skill))),
-            ]),
+            // Edit toggle
+            Align(
+              alignment: Alignment.centerRight,
+              child: TextButton.icon(
+                icon: Icon(isEditing ? Icons.cancel : Icons.edit),
+                label: Text(isEditing ? "Cancel" : "Edit"),
+                onPressed: () {
+                  setState(() => isEditing = !isEditing);
+                },
+              ),
+            ),
+
+            const SizedBox(height: 8),
+
+            _buildEditableInfo(context, user),
             const SizedBox(height: 24),
 
-            //Sign Out Button
+            // Sign Out
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
@@ -99,30 +131,130 @@ class ProfilePage extends StatelessWidget {
                 child: const Text('Sign Out', style: TextStyle(fontSize: 16)),
               ),
             ),
-            const SizedBox(height: 16),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildInfoCard(String title, List<Widget> children) {
+  Widget _buildEditableInfo(BuildContext context, UserEntity user) {
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              title,
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 8),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          const Text('Contact Information', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 8),
+          isEditing
+              ? Column(
+                  children: [
+                    TextField(
+                      controller: phoneController,
+                      decoration: const InputDecoration(
+                        labelText: 'Phone',
+                        prefixIcon: Icon(Icons.phone),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    TextField(
+                      controller: addressController,
+                      decoration: const InputDecoration(
+                        labelText: 'Address',
+                        prefixIcon: Icon(Icons.location_on),
+                      ),
+                    ),
+                  ],
+                )
+              : Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildInfoRow(Icons.phone, user.phone ?? 'No phone'),
+                    _buildInfoRow(Icons.location_on, user.address ?? 'No address'),
+                  ],
+                ),
+          const SizedBox(height: 16),
 
-            ...children,
+          // Skills
+          const Text('Skills', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 8),
+          isEditing ? _buildEditableSkillsSection() : _buildSkillChips(),
+
+          if (isEditing) ...[
+            const SizedBox(height: 24),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                onPressed: () {
+                  final updates = {
+                    'phone': phoneController.text,
+                    'address': addressController.text,
+                    'offeredSkills': skills,
+                  };
+                  context.read<ProfileBloc>().add(UpdateUserRequested(widget.userId, updates));
+                  setState(() => isEditing = false);
+                },
+                icon: const Icon(Icons.save),
+                label: const Text('Save Changes'),
+              ),
+            ),
+          ],
+        ]),
+      ),
+    );
+  }
+
+  Widget _buildSkillChips() {
+    if (skills.isEmpty) {
+      return const Text('No skills listed');
+    }
+    return Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      children: skills.map((s) => Chip(label: Text(s))).toList(),
+    );
+  }
+
+  Widget _buildEditableSkillsSection() {
+    return Column(
+      children: [
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: skills
+              .map((skill) => Chip(
+                    label: Text(skill),
+                    onDeleted: () {
+                      setState(() => skills.remove(skill));
+                    },
+                  ))
+              .toList(),
+        ),
+        const SizedBox(height: 8),
+        Row(
+          children: [
+            Expanded(
+              child: TextField(
+                controller: skillController,
+                decoration: const InputDecoration(
+                  labelText: 'Add a skill',
+                  prefixIcon: Icon(Icons.add),
+                ),
+              ),
+            ),
+            IconButton(
+              icon: const Icon(Icons.check_circle, color: Colors.green),
+              onPressed: () {
+                final newSkill = skillController.text.trim();
+                if (newSkill.isNotEmpty) {
+                  setState(() {
+                    skills.add(newSkill);
+                    skillController.clear();
+                  });
+                }
+              },
+            ),
           ],
         ),
-      ),
+      ],
     );
   }
 
@@ -146,15 +278,11 @@ class ProfilePage extends StatelessWidget {
         children: [
           const Icon(Icons.error_outline, size: 60, color: Colors.red),
           const SizedBox(height: 16),
-          Text(
-            'Error: $message',
-            textAlign: TextAlign.center,
-            style: const TextStyle(color: Colors.red),
-          ),
+          Text('Error: $message', textAlign: TextAlign.center, style: const TextStyle(color: Colors.red)),
           const SizedBox(height: 16),
           ElevatedButton(
             onPressed: () {
-              context.read<ProfileBloc>().add(ProfileRetryRequested(userId));
+              context.read<ProfileBloc>().add(ProfileRetryRequested(widget.userId));
             },
             child: const Text('Try Again'),
           ),

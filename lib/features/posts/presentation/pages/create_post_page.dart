@@ -53,6 +53,9 @@ class _CreatePostPageState extends State<CreatePostPage> {
                 ),
                 TextFormField(
                   controller: titleController,
+                  validator: (value) => value == null || value.isEmpty
+                      ? 'Please enter a title for your post!'
+                      : null,
                   decoration: InputDecoration(
                     hintText: 'What do you need/offer?',
                     hintStyle: TextStyle(color: Colors.grey[500]),
@@ -126,6 +129,9 @@ class _CreatePostPageState extends State<CreatePostPage> {
                   maxLines: null,
                   minLines: 4,
                   controller: descriptionController,
+                  validator: (value) => value == null || value.length <= 10
+                      ? 'Please use at least 10 characters to describe your post!'
+                      : null,
                   decoration: InputDecoration(
                     hintText: isRequest
                         ? 'Describe your request in detail...'
@@ -266,6 +272,14 @@ class _CreatePostPageState extends State<CreatePostPage> {
             }
             lastPressed = now;
 
+            final authState = context.read<AuthBloc>().state;
+            if (authState is! Authenticated) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Please log in before posting.')),
+              );
+              return;
+            }
+
             if (!formKey.currentState!.validate()) {
               // Show popup or snackbar if invalid
               ScaffoldMessenger.of(context).showSnackBar(
@@ -273,10 +287,6 @@ class _CreatePostPageState extends State<CreatePostPage> {
                   content: Text('Please fix the errors before posting.'),
                 ),
               );
-              return;
-            }
-            final authState = context.read<AuthBloc>().state;
-            if (authState is! Authenticated) {
               return;
             }
 
@@ -290,7 +300,9 @@ class _CreatePostPageState extends State<CreatePostPage> {
               location: locationController.text,
               timestamp: DateTime.now(),
               isRequest: isRequest,
-              neededSkills: skillsController.text.split(','),
+              neededSkills: skillsController.text.isEmpty
+                  ? []
+                  : skillsController.text.split(','),
             );
 
             context.read<PostsBloc>().add(CreateNewPostRequested(newPost));

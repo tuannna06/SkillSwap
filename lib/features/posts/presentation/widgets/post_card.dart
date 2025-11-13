@@ -97,7 +97,7 @@ class PostCard extends StatelessWidget {
           child: Text(
             post.authorName.isNotEmpty
                 ? post.authorName[0].toUpperCase()
-                : '(no info)',
+                : '(Annonymous)',
             style: const TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w600,

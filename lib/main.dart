@@ -50,7 +50,7 @@ class MyApp extends StatelessWidget {
             ),
           ),
         ],
-        child: AuthWrapper(),
+        child: MainNavigationPage(),
       ),
     );
   }

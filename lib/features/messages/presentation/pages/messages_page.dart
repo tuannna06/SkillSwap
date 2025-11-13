@@ -56,14 +56,20 @@ class MessagesPage extends StatelessWidget {
                   fontWeight: FontWeight.w300,
                 ),
               ),
-              onTap: () {
-                final messageBloc = context.read<MessagesBloc>();
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => BlocProvider.value(
-                      value: messageBloc,
-                      child: CreateMessagesPage(),
+            ),
+            onTap: () {
+              final messageBloc = context.read<MessagesBloc>();
+              final String userId = "user_${index + 1}";
+              final String username = "user ${index + 1}";
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => BlocProvider.value(
+                    value: messageBloc,
+                    child: CreateMessagesPage(
+                      userId: userId,
+                      username: username,
+                    ),
                     ),
                   ),
                 );

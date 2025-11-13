@@ -4,7 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 class PostModel extends PostEntity {
   const PostModel({
-  required super.category,
+    required super.category,
     required super.postId,
     required super.title,
     super.description,
@@ -20,7 +20,7 @@ class PostModel extends PostEntity {
   // Add toMap() and fromMap() methods here
   Map<String, dynamic> toMap() {
     return {
-      'category' : category.name,
+      'category': category.name,
       'title': title,
       'description': description,
       'authorId': authorId,
@@ -35,7 +35,9 @@ class PostModel extends PostEntity {
 
   factory PostModel.fromMap(Map<String, dynamic> map, String docID) {
     return PostModel(
-      category: PostCategory.values.byName(map['category'] ?? PostCategory.other.name),
+      category: PostCategory.values.byName(
+        map['category'] ?? PostCategory.other.name,
+      ),
       postId: docID,
       title: map['title'] ?? '',
       description: map['description'],
@@ -45,7 +47,8 @@ class PostModel extends PostEntity {
       timestamp: (map['timestamp'] as Timestamp).toDate(),
       isResolved: map['isResolved'] ?? false,
       isRequest: map['isRequest'] ?? true,
-      neededSkills: (map['neededSkills'] as List<dynamic>?)?.cast<String>() ?? [],
+      neededSkills:
+          (map['neededSkills'] as List<dynamic>?)?.cast<String>() ?? [],
     );
   }
 

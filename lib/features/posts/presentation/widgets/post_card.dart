@@ -6,11 +6,7 @@ class PostCard extends StatelessWidget {
   final PostEntity post;
   final VoidCallback? onTap;
 
-  const PostCard({
-    super.key,
-    required this.post,
-    this.onTap,
-  });
+  const PostCard({super.key, required this.post, this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -27,10 +23,7 @@ class PostCard extends StatelessWidget {
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color: Colors.grey.shade200,
-                width: 1,
-              ),
+              border: Border.all(color: Colors.grey.shade200, width: 1),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -44,14 +37,14 @@ class PostCard extends StatelessWidget {
                       children: [
                         _buildPostCategoryBadge(),
                         const SizedBox(width: 4),
-                        _buildPostTypeBadge()
-                        ]
-                    )
+                        _buildPostTypeBadge(),
+                      ],
+                    ),
                   ],
                 ),
-                
+
                 const SizedBox(height: 16),
-                
+
                 // Title
                 Text(
                   post.title,
@@ -62,9 +55,9 @@ class PostCard extends StatelessWidget {
                     height: 1.3,
                   ),
                 ),
-                
+
                 const SizedBox(height: 8),
-                
+
                 // Description
                 if (post.description != null && post.description!.isNotEmpty)
                   Text(
@@ -77,15 +70,16 @@ class PostCard extends StatelessWidget {
                     maxLines: 3,
                     overflow: TextOverflow.ellipsis,
                   ),
-                
-                const SizedBox(height: 16),
-                
-                // TODO: Add skills and location footer section
-              
-                Text('${post.isRequest ? 'Skills Needed: ' : 'Skill Offered: '}${post.neededSkills.isEmpty ? 'None' : post.neededSkills.join(', ')}'),
 
                 const SizedBox(height: 16),
-                Text('Location: ${post.location?.isNotEmpty ?? false ? post.location : 'N/A'}'),
+                Text(
+                  '${post.isRequest ? 'Skills Needed: ' : 'Skill Offered: '}${post.neededSkills.isEmpty ? 'None' : post.neededSkills.join(', ')}',
+                ),
+
+                const SizedBox(height: 16),
+                Text(
+                  'Location: ${post.location?.isNotEmpty ?? false ? post.location : 'N/A'}',
+                ),
               ],
             ),
           ),
@@ -101,7 +95,9 @@ class PostCard extends StatelessWidget {
           radius: 16,
           backgroundColor: Colors.grey.shade300,
           child: Text(
-            post.authorName.isNotEmpty ? post.authorName[0].toUpperCase() : '(no info)',
+            post.authorName.isNotEmpty
+                ? post.authorName[0].toUpperCase()
+                : '(no info)',
             style: const TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w600,
@@ -115,17 +111,11 @@ class PostCard extends StatelessWidget {
           children: [
             Text(
               post.authorName,
-              style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
-              ),
-            ),  
+              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+            ),
             Text(
               _formatTimestamp(post.timestamp),
-              style: TextStyle(
-                fontSize: 12,
-                color: Colors.grey.shade600,
-              ),
+              style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
             ),
           ],
         ),
@@ -137,14 +127,10 @@ class PostCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: post.isRequest 
-            ? Colors.blue.shade50 
-            : Colors.green.shade50,
+        color: post.isRequest ? Colors.blue.shade50 : Colors.green.shade50,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: post.isRequest 
-              ? Colors.blue.shade200 
-              : Colors.green.shade200,
+          color: post.isRequest ? Colors.blue.shade200 : Colors.green.shade200,
           width: 1,
         ),
       ),
@@ -153,9 +139,7 @@ class PostCard extends StatelessWidget {
         style: TextStyle(
           fontSize: 12,
           fontWeight: FontWeight.w500,
-          color: post.isRequest 
-              ? Colors.blue.shade700 
-              : Colors.green.shade700,
+          color: post.isRequest ? Colors.blue.shade700 : Colors.green.shade700,
         ),
       ),
     );
@@ -167,10 +151,7 @@ class PostCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: post.category.color.withAlpha(70),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: post.category.color,
-          width: 1,
-        ),
+        border: Border.all(color: post.category.color, width: 1),
       ),
       child: Text(
         post.category.label,
@@ -186,7 +167,7 @@ class PostCard extends StatelessWidget {
   String _formatTimestamp(DateTime timestamp) {
     final now = DateTime.now();
     final difference = now.difference(timestamp);
-    
+
     if (difference.inDays > 0) {
       return '${difference.inDays}d ago';
     } else if (difference.inHours > 0) {

@@ -5,4 +5,4 @@ run 'flutter pub get' to get required packages
 
 Then run 'flutter run' to run
 
-To test, run 'cd lib', 'cd features', 'flutter test'
+To test, run 'flutter test'

@@ -16,8 +16,12 @@ class PostsRepositoryImpl implements PostsRepository {
 
     //convert to list<entity>
     return allPostsData.map((docs) {
-      final entities =
-          docs.map((doc) => PostModel.fromMap(doc.data() as Map<String, dynamic>, doc.id)).toList();
+      final entities = docs
+          .map(
+            (doc) =>
+                PostModel.fromMap(doc.data() as Map<String, dynamic>, doc.id),
+          )
+          .toList();
       return entities;
     });
   }
@@ -39,20 +43,28 @@ class PostsRepositoryImpl implements PostsRepository {
   Future<void> deletePost(String postId) async {
     await postsRemoteDataSource.deletePost(postId);
   }
-  
+
   @override
   Future<void> deleteAllPosts() async {
     await postsRemoteDataSource.deleteAllPosts();
   }
 
   @override
-  Stream<List<PostEntity>> getPostsFilteredByTitle(List<String> categories, List<bool> types, String? title) {
+  Stream<List<PostEntity>> getPostsFilteredByTitle(
+    List<String> categories,
+    List<bool> types,
+    String? title,
+  ) {
     final Stream<List<QueryDocumentSnapshot>> filteredPostsData =
-        postsRemoteDataSource.getPostsFilteredByTitle(categories,types,title);
+        postsRemoteDataSource.getPostsFilteredByTitle(categories, types, title);
 
     return filteredPostsData.map((docs) {
-      final entities =
-          docs.map((doc) => PostModel.fromMap(doc.data() as Map<String, dynamic>, doc.id)).toList();
+      final entities = docs
+          .map(
+            (doc) =>
+                PostModel.fromMap(doc.data() as Map<String, dynamic>, doc.id),
+          )
+          .toList();
 
       return entities;
     });

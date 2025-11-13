@@ -2,6 +2,10 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.892044708637-7duhhulnpauf40escivej6697u5m3o1q</string>
+	<key>GIDClientID</key>
+	<string>892044708637-7duhhulnpauf40escivej6697u5m3o1q.apps.googleusercontent.com</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
@@ -45,5 +49,16 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>com.googleusercontent.apps.892044708637-7duhhulnpauf40escivej6697u5m3o1q</string>
+			</array>
+		</dict>
+	</array>
 </dict>
 </plist>

@@ -51,7 +51,7 @@ class MyApp extends StatelessWidget {
               repository: AuthRepositoryImpl(AuthRemoteDataSource())),
           ),
         ],
-        child: AuthWrapper(),
+        child: MainNavigationPage(),
       ),
     );
   }

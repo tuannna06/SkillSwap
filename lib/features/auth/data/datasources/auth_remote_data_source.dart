@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:google_sign_in/google_sign_in.dart';
+import 'google_signin_helper.dart' as google_helper;
 
 class AuthRemoteDataSource {
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
@@ -25,23 +25,14 @@ class AuthRemoteDataSource {
   }
 
   Future<User?> signInWithGoogle() async {
-    final GoogleSignInAccount googleUser = await GoogleSignIn.instance
-        .authenticate();
-
-    final GoogleSignInAuthentication googleAuth = googleUser.authentication;
-    final String? idToken = googleAuth.idToken;
-
-    //new credential using the idToken
-    final credential = GoogleAuthProvider.credential(idToken: idToken);
-
-    final userCredential = await _firebaseAuth.signInWithCredential(credential);
-    return userCredential.user;
+    return google_helper.signInWithGooglePlatform(_firebaseAuth);
   }
 
   Future<void> signOut() async {
+    // Try to sign out of both Firebase and GoogleSignIn gracefully
     await Future.wait([
       _firebaseAuth.signOut(),
-      GoogleSignIn.instance.signOut(),
+      google_helper.signOutGooglePlatform(),
     ]);
   }
 

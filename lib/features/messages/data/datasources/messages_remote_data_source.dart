@@ -1,21 +1,137 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class MessagesRemoteDataSource {
-  final messageCollection = FirebaseFirestore.instance.collection('messages');
+  final conversationCollection = FirebaseFirestore.instance.collection(
+    'conversations',
+  );
 
-  Future<void> sendMessage(String conversationId, Map<String, dynamic> messageData) async {
-    await messageCollection
+  final userCollection = FirebaseFirestore.instance.collection('users');
+
+  // Conversation structure:
+  // {
+  //   'id': 'conv_123',
+  //   'participants': ['user1', 'user2'],
+  //   'participantDetails': {
+  //     'user1': {'name': 'Alice', 'photoUrl': '...'},
+  //     'user2': {'name': 'Bob', 'photoUrl': '...'},
+  //   },
+  //   'lastMessage': 'Hello!',
+  //   'lastMessageSenderId': 'user1',
+  //   'lastMessageTimestamp': Timestamp,
+  //   'createdAt': Timestamp
+  // }
+
+  String getConversationId(String userId1, String userId2) {
+    final sorted = [userId1, userId2]..sort();
+    return '${sorted[0]}_${sorted[1]}';
+  }
+
+  Future<String> createOrGetConversation({
+    required List<String> participantIds,
+  }) async {
+    if (participantIds.length < 2) {
+      return Future.error('At least two participants are required');
+    }
+
+    String conversationId;
+    if (participantIds.length == 2) {
+      conversationId = getConversationId(participantIds[0], participantIds[1]);
+    } else {
+      return Future.error('Group conversations not yet supported');
+    }
+
+    final conversationRef = conversationCollection.doc(conversationId);
+    final doc = await conversationRef.get();
+
+    if (doc.exists) {
+      return conversationId;
+    }
+
+    //get participant details
+    Map<String, Map<String, dynamic>> participantDetails = {};
+    for (String participantId in participantIds) {
+      final userDoc = await userCollection.doc(participantId).get();
+      if (userDoc.exists) {
+        participantDetails[participantId] = {
+          'name': userDoc['name'],
+          'photoUrl': userDoc['photoUrl'],
+        };
+      } else {
+        return Future.error('User $participantId not found');
+      }
+    }
+
+    await conversationRef.set({
+      'id': conversationId,
+      'participants': participantIds,
+      'participantDetails': participantDetails,
+      'lastMessage': '',
+      'lastMessageSenderId': '',
+      'lastMessageTimestamp': FieldValue.serverTimestamp(),
+      'createdAt': FieldValue.serverTimestamp(),
+    });
+
+    return conversationId;
+  }
+
+  Stream<List<Map<String, dynamic>>> getUserConversations(String userId) {
+    return conversationCollection
+        .where('participants', arrayContains: userId)
+        .orderBy('lastMessageTimestamp', descending: true)
+        .snapshots()
+        .map(
+          (snapshot) => snapshot.docs.map((doc) {
+            final data = doc.data();
+            return {
+              'id': doc.id,
+              'participants': data['participants'],
+              'participantDetails': data['participantDetails'],
+              'lastMessage': data['lastMessage'],
+              'lastMessageSenderId': data['lastMessageSenderId'],
+              'lastMessageTimestamp': data['lastMessageTimestamp'],
+              'createdAt': data['createdAt'],
+            };
+          }).toList(),
+        );
+  }
+
+  Future<void> sendMessage(
+    String conversationId,
+    Map<String, dynamic> messageData,
+  ) async {
+    // Ensure messageData contains a timestamp
+    if (!messageData.containsKey('timestamp')) {
+      messageData['timestamp'] = FieldValue.serverTimestamp();
+    }
+
+    await conversationCollection.doc(conversationId).update({
+      'lastMessage': messageData['text'],
+      'lastMessageSenderId': messageData['senderId'],
+      'lastMessageTimestamp': FieldValue.serverTimestamp(),
+    });
+
+    await conversationCollection
         .doc(conversationId)
         .collection('messages')
         .add(messageData);
   }
 
-  Stream<List<Map<String, dynamic>>> getMessages(String conversationId) {
-    return messageCollection
+  Stream<List<Map<String, dynamic>>> getConversations(String conversationId) {
+    return conversationCollection
         .doc(conversationId)
         .collection('messages')
         .orderBy('timestamp', descending: true)
         .snapshots()
-        .map((snapshot) => snapshot.docs.map((doc) => doc.data()).toList());
+        .map(
+          (snapshot) => snapshot.docs.map((doc) {
+            final data = doc.data();
+            return {
+              'id': doc.id,
+              'text': data['text'],
+              'senderId': data['senderId'],
+              'timestamp': data['timestamp'],
+            };
+          }).toList(),
+        );
   }
 }

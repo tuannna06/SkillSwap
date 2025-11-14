@@ -15,15 +15,5 @@ class MessagesRepositoryImpl implements MessagesRepository {
   @override
   Future<void> sendMessage(String conversationId, Messages message) async {}
 
-  @override
-  Future<String> createConversation(List<String> participantIds) async {
-    throw UnimplementedError();
-  }
 
-  @override
-  Future<void> markMessageAsRead(
-    String conversationId,
-    String messageId,
-    String userId,
-  ) async {}
 }

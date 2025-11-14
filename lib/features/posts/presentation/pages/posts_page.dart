@@ -1,4 +1,5 @@
 import 'package:cs222_final/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:cs222_final/features/auth/presentation/bloc/auth_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:cs222_final/components/custom_app_bar.dart';
@@ -92,7 +93,18 @@ class _PostsPageState extends State<PostsPage> {
                 }
 
                 if (state is PostsLoaded) {
-                  return _buildPostContent(context, state.posts);
+
+                  return BlocBuilder<AuthBloc, AuthState>(
+                    builder: (context, authState) {
+                      if (authState is Authenticated) {
+                        final String username = authState.user.displayName.toString();
+
+                        return _buildPostContent(context, state.posts, username);
+                      }
+
+                      return SizedBox();
+                    },
+                  );
                 }
 
                 if (state is PostsError) {
@@ -134,14 +146,14 @@ class _PostsPageState extends State<PostsPage> {
     );
   }
 
-  Widget _buildPostContent(BuildContext context, List<PostEntity> posts) {
+  Widget _buildPostContent(BuildContext context, List<PostEntity> posts, String username) {
     if (posts.isEmpty) {
       return Center(child: Text('No Posts Yet'));
     }
     return RefreshIndicator(
       child: ListView(
         padding: const EdgeInsets.symmetric(vertical: 8),
-        children: posts.map((post) => PostCard(post: post)).toList(),
+        children: posts.map((post) => PostCard(post: post, username: username)).toList(),
       ),
       onRefresh: () async {
         context.read<PostsBloc>().add(PostLoadRequested());

@@ -1,3 +1,4 @@
+import 'package:cs222_final/features/auth/presentation/bloc/auth_state.dart';
 import 'package:cs222_final/features/posts/domain/entities/post_category.dart';
 import 'package:flutter/material.dart';
 import 'package:cs222_final/features/posts/domain/entities/post_entity.dart';
@@ -5,8 +6,10 @@ import 'package:cs222_final/features/posts/domain/entities/post_entity.dart';
 class PostCard extends StatelessWidget {
   final PostEntity post;
   final VoidCallback? onTap;
+  final String username;
+  final isRequested = false;
 
-  const PostCard({super.key, required this.post, this.onTap});
+  const PostCard({super.key, required this.post, required this.username, this.onTap,});
 
   @override
   Widget build(BuildContext context) {
@@ -45,40 +48,55 @@ class PostCard extends StatelessWidget {
 
                 const SizedBox(height: 16),
 
-                // Title
-                Text(
-                  post.title,
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w600,
-                    letterSpacing: -0.2,
-                    height: 1.3,
-                  ),
-                ),
-
-                const SizedBox(height: 8),
-
-                // Description
-                if (post.description != null && post.description!.isNotEmpty)
-                  Text(
-                    post.description!,
-                    style: TextStyle(
-                      fontSize: 15,
-                      color: Colors.grey.shade700,
-                      height: 1.4,
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Title
+                    Text(
+                      post.title,
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: -0.2,
+                        height: 1.3,
+                      ),
                     ),
-                    maxLines: 3,
-                    overflow: TextOverflow.ellipsis,
+
+                    const SizedBox(height: 8),
+                    
+                    // Description
+                    if (post.description != null && post.description!.isNotEmpty)
+                      Text(
+                        post.description!,
+                        style: TextStyle(
+                          fontSize: 15,
+                          color: Colors.grey.shade700,
+                          height: 1.4,
+                        ),
+                        maxLines: 3,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+
+                    const SizedBox(height: 16),
+                    Text(
+                      '${post.isRequest ? 'Skills Needed: ' : 'Skill Offered: '}${post.neededSkills.isEmpty ? 'None' : post.neededSkills.join(', ')}',
+                    ),
+
+                    const SizedBox(height: 16),
+                    Text(
+                      'Location: ${post.location?.isNotEmpty ?? false ? post.location : 'N/A'}',
+                    ),
+                    ],
                   ),
 
-                const SizedBox(height: 16),
-                Text(
-                  '${post.isRequest ? 'Skills Needed: ' : 'Skill Offered: '}${post.neededSkills.isEmpty ? 'None' : post.neededSkills.join(', ')}',
-                ),
-
-                const SizedBox(height: 16),
-                Text(
-                  'Location: ${post.location?.isNotEmpty ?? false ? post.location : 'N/A'}',
+                  if (this.username != post.authorName)
+                    RequestButton(),
+                  
+                    
+                  ],
                 ),
               ],
             ),
@@ -177,5 +195,33 @@ class PostCard extends StatelessWidget {
     } else {
       return 'Just now';
     }
+  }
+}
+
+
+class RequestButton extends StatefulWidget {
+  const RequestButton({super.key});
+
+  @override
+  State<RequestButton> createState() => _RequestButtonState();
+}
+
+class _RequestButtonState extends State<RequestButton> {
+  bool isRequested = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return ElevatedButton(
+      onPressed: () {
+        setState(() {
+          isRequested = true;
+        });
+      },
+      style: ElevatedButton.styleFrom(
+        backgroundColor: isRequested ? Colors.grey : Colors.red,
+        foregroundColor: Colors.white,
+      ),
+      child: Text(isRequested ? "REQUESTED" : "CLAIM"),
+    );
   }
 }

@@ -1,3 +1,4 @@
+import 'package:cs222_final/features/auth/presentation/bloc/auth_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:cs222_final/components/custom_app_bar.dart';
@@ -11,7 +12,8 @@ import 'package:cs222_final/features/profile/presentation/bloc/profile_state.dar
 class ProfilePage extends StatefulWidget {
   final String userId;
 
-  const ProfilePage(Set<String> set, {super.key, required this.userId});
+  // CORRECT
+  const ProfilePage({super.key, required this.userId}); 
 
   @override
   State<ProfilePage> createState() => _ProfilePageState();
@@ -74,6 +76,16 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   Widget _buildProfileContent(BuildContext context, UserEntity user) {
+    // 1. GET CURRENT USER ID from AuthBloc
+    final authState = context.read<AuthBloc>().state;
+    String? currentUserId;
+    if (authState is Authenticated) {
+      currentUserId = authState.user.uid; // Assuming 'uid' is your ID field in AuthUser
+    }
+    
+    // 2. CHECK IF THIS IS MY PROFILE
+    final bool isOwnProfile = currentUserId == widget.userId;
+
     return RefreshIndicator(
       onRefresh: () async {
         context.read<ProfileBloc>().add(ProfileReloadRequested(user.id));
@@ -99,38 +111,42 @@ class _ProfilePageState extends State<ProfilePage> {
             ),
             const SizedBox(height: 16),
 
-            // Edit toggle
-            Align(
-              alignment: Alignment.centerRight,
-              child: TextButton.icon(
-                icon: Icon(isEditing ? Icons.cancel : Icons.edit),
-                label: Text(isEditing ? "Cancel" : "Edit"),
-                onPressed: () {
-                  setState(() => isEditing = !isEditing);
-                },
+            // 3. ONLY SHOW EDIT BUTTON IF IS OWN PROFILE
+            if (isOwnProfile) 
+              Align(
+                alignment: Alignment.centerRight,
+                child: TextButton.icon(
+                  icon: Icon(isEditing ? Icons.cancel : Icons.edit),
+                  label: Text(isEditing ? "Cancel" : "Edit"),
+                  onPressed: () {
+                    setState(() => isEditing = !isEditing);
+                  },
+                ),
               ),
-            ),
 
             const SizedBox(height: 8),
 
-            _buildEditableInfo(context, user),
+            // Pass isOwnProfile down if you want extra safety in the widget
+            _buildEditableInfo(context, user), 
+            
             const SizedBox(height: 24),
 
-            // Sign Out
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () {
-                  context.read<AuthBloc>().add(SignOutRequested());
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.red,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
+            // 4. ONLY SHOW SIGN OUT BUTTON IF IS OWN PROFILE
+            if (isOwnProfile)
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () {
+                    context.read<AuthBloc>().add(SignOutRequested());
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.red,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                  ),
+                  child: const Text('Sign Out', style: TextStyle(fontSize: 16)),
                 ),
-                child: const Text('Sign Out', style: TextStyle(fontSize: 16)),
               ),
-            ),
           ],
         ),
       ),

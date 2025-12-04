@@ -24,7 +24,7 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
     return [
       HomePage(),
       PostsPage(),
-      ProfilePage({}, userId: userId),
+      ProfilePage(userId: userId),
       NotificationsPage(),
       MessagesPage(),
     ];

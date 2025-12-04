@@ -1,8 +1,12 @@
-import 'package:cs222_final/features/auth/presentation/bloc/auth_bloc.dart';
-import 'package:cs222_final/features/auth/presentation/bloc/auth_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
+// --- AUTH & COMMON IMPORTS ---
+import 'package:cs222_final/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:cs222_final/features/auth/presentation/bloc/auth_state.dart';
 import 'package:cs222_final/components/custom_app_bar.dart';
+
+// --- POSTS FEATURE IMPORTS ---
 import 'package:cs222_final/features/posts/domain/entities/post_entity.dart';
 import 'package:cs222_final/features/posts/domain/entities/post_category.dart';
 import 'package:cs222_final/features/posts/presentation/bloc/posts_bloc.dart';
@@ -10,6 +14,18 @@ import 'package:cs222_final/features/posts/presentation/bloc/posts_event.dart';
 import 'package:cs222_final/features/posts/presentation/bloc/posts_state.dart';
 import 'package:cs222_final/features/posts/presentation/pages/create_post_page.dart';
 import 'package:cs222_final/features/posts/presentation/widgets/post_card.dart';
+
+// --- PROFILE FEATURE IMPORTS ---
+import 'package:cs222_final/features/profile/presentation/pages/profile_page.dart';
+import 'package:cs222_final/features/profile/presentation/bloc/profile_bloc.dart';
+
+// --- DATA LAYER IMPORTS (THE FIX) ---
+// 1. The Concrete Datasource Class
+import 'package:cs222_final/features/profile/data/datasources/profile_remote_datasource.dart';
+// 2. The Repository Implementation
+import 'package:cs222_final/features/profile/data/repositories/profile_repository_impl.dart';
+// 3. The Repository Interface (Vital for RepositoryProvider to work)
+import 'package:cs222_final/features/profile/domain/repositories/profile_repository.dart';
 
 class PostsPage extends StatefulWidget {
   const PostsPage({super.key});
@@ -35,7 +51,6 @@ class _PostsPageState extends State<PostsPage> {
             color: Colors.white,
             child: Row(
               children: [
-                // Search Field
                 Expanded(
                   child: TextField(
                     decoration: InputDecoration(
@@ -61,12 +76,8 @@ class _PostsPageState extends State<PostsPage> {
                   ),
                 ),
                 const SizedBox(width: 8),
-                // Filter Button
                 InkWell(
-                  onTap: () {
-                    // Open filter modal or show popup menu
-                    _showFilterDialog(context);
-                  },
+                  onTap: () => _showFilterDialog(context),
                   borderRadius: BorderRadius.circular(8),
                   child: Container(
                     padding: const EdgeInsets.all(10),
@@ -91,26 +102,20 @@ class _PostsPageState extends State<PostsPage> {
                 if (state is PostsLoading) {
                   return const Center(child: CircularProgressIndicator());
                 }
-
                 if (state is PostsLoaded) {
-
                   return BlocBuilder<AuthBloc, AuthState>(
                     builder: (context, authState) {
                       if (authState is Authenticated) {
                         final String username = authState.user.displayName.toString();
-
                         return _buildPostContent(context, state.posts, username);
                       }
-
-                      return SizedBox();
+                      return const SizedBox();
                     },
                   );
                 }
-
                 if (state is PostsError) {
                   return _buildErrorWidget(context, state.message);
                 }
-
                 return const Center(child: Text('unknown state'));
               },
             ),
@@ -118,12 +123,11 @@ class _PostsPageState extends State<PostsPage> {
         ],
       ),
 
-      //add posts
       floatingActionButton: Builder(
         builder: (context) {
           return FloatingActionButton(
             backgroundColor: Colors.blue,
-            child: Icon(Icons.add),
+            child: const Icon(Icons.add),
             onPressed: () {
               final postsBloc = context.read<PostsBloc>();
               final authBloc = context.read<AuthBloc>();
@@ -148,16 +152,53 @@ class _PostsPageState extends State<PostsPage> {
 
   Widget _buildPostContent(BuildContext context, List<PostEntity> posts, String username) {
     if (posts.isEmpty) {
-      return Center(child: Text('No Posts Yet'));
+      return const Center(child: Text('No Posts Yet'));
     }
     return RefreshIndicator(
-      child: ListView(
-        padding: const EdgeInsets.symmetric(vertical: 8),
-        children: posts.map((post) => PostCard(post: post, username: username)).toList(),
-      ),
       onRefresh: () async {
         context.read<PostsBloc>().add(PostLoadRequested());
       },
+      child: ListView(
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        children: posts.map((post) {
+          return PostCard(
+            post: post,
+            username: username,
+            // --- FIXED NAVIGATION LOGIC ---
+            onProfileTap: () {
+              // 1. Capture the existing AuthBloc from the current context
+              final authBloc = context.read<AuthBloc>();
+
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) {
+                    final datasource = ProfileRemoteDatasource();
+                    final repository = ProfileRepositoryImpl(datasource);
+
+                    // 2. Wrap everything in BlocProvider.value to pass the AuthBloc
+                    return BlocProvider.value(
+                      value: authBloc,
+                      child: RepositoryProvider<ProfileRepository>(
+                        create: (context) => repository,
+                        child: BlocProvider(
+                          create: (context) => ProfileBloc(
+                            repository: repository,
+                          ),
+                          child: ProfilePage(
+                            userId: post.authorId,
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              );
+            },
+            // -----------------------------
+          );
+        }).toList(),
+      ),
     );
   }
 
@@ -166,13 +207,13 @@ class _PostsPageState extends State<PostsPage> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.error_outline, size: 60, color: Colors.red),
-          SizedBox(height: 16),
+          const Icon(Icons.error_outline, size: 60, color: Colors.red),
+          const SizedBox(height: 16),
           Text('Error: $message'),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
           ElevatedButton(
             onPressed: () => context.read<PostsBloc>().add(PostLoadRequested()),
-            child: Text('Try Again'),
+            child: const Text('Try Again'),
           ),
         ],
       ),
@@ -190,30 +231,11 @@ class _PostsPageState extends State<PostsPage> {
               return SingleChildScrollView(
                 child: Column(
                   children: [
-                    const Text(
-                      'Post Category',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 18,
-                        letterSpacing: 0.5,
-                      ),
-                    ),
-
+                    const Text('Post Category', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
                     const SizedBox(height: 16),
-
                     _buildCategoryChipsGrid(),
-
                     const SizedBox(height: 24),
-
-                    // Post Type Section
-                    const Text(
-                      'Post Type',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 18,
-                        letterSpacing: 0.5,
-                      ),
-                    ),
+                    const Text('Post Type', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
                     const SizedBox(height: 16),
                     Row(
                       children: [
@@ -227,9 +249,7 @@ class _PostsPageState extends State<PostsPage> {
                               onTap: () {
                                 setState(() {
                                   if (types.contains(true)) {
-                                    if (types.length == 1) {
-                                      return;
-                                    }
+                                    if (types.length == 1) return;
                                     types.remove(true);
                                   } else {
                                     types.add(true);
@@ -249,9 +269,7 @@ class _PostsPageState extends State<PostsPage> {
                               onTap: () {
                                 setState(() {
                                   if (types.contains(false)) {
-                                    if (types.length == 1) {
-                                      return;
-                                    }
+                                    if (types.length == 1) return;
                                     types.remove(false);
                                   } else {
                                     types.add(false);
@@ -271,9 +289,7 @@ class _PostsPageState extends State<PostsPage> {
           actions: [
             TextButton(
               onPressed: () {
-                outerContext.read<PostsBloc>().add(
-                  FilterPosts(categories, types, title),
-                );
+                outerContext.read<PostsBloc>().add(FilterPosts(categories, types, title));
                 Navigator.pop(context);
               },
               child: const Text('Done'),
@@ -288,10 +304,7 @@ class _PostsPageState extends State<PostsPage> {
     int columns = 3;
     List<Widget> rows = [];
     for (int i = 0; i < PostCategory.values.length; i += columns) {
-      List<PostCategory> rowCategories = PostCategory.values
-          .skip(i)
-          .take(columns)
-          .toList();
+      List<PostCategory> rowCategories = PostCategory.values.skip(i).take(columns).toList();
       rows.add(_buildCategoryChipsRow(rowCategories));
       if (i + columns < PostCategory.values.length) {
         rows.add(const SizedBox(height: 8));
@@ -314,9 +327,7 @@ class _PostsPageState extends State<PostsPage> {
                   onTap: () {
                     setLocalState(() {
                       if (categories.contains(category.name)) {
-                        if (categories.length == 1) {
-                          return;
-                        }
+                        if (categories.length == 1) return;
                         categories.remove(category.name);
                       } else {
                         categories.add(category.name);
@@ -332,11 +343,7 @@ class _PostsPageState extends State<PostsPage> {
     );
   }
 
-  Widget _buildCategoryChip({
-    required PostCategory category,
-    required bool isSelected,
-    required VoidCallback onTap,
-  }) {
+  Widget _buildCategoryChip({required PostCategory category, required bool isSelected, required VoidCallback onTap}) {
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(12),
@@ -345,58 +352,20 @@ class _PostsPageState extends State<PostsPage> {
         decoration: BoxDecoration(
           color: isSelected ? Theme.of(context).primaryColor : Colors.white,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: isSelected
-                ? Theme.of(context).primaryColor
-                : Colors.grey[300]!,
-            width: 2,
-          ),
-          boxShadow: isSelected
-              ? [
-                  BoxShadow(
-                    color: Theme.of(
-                      context,
-                    ).primaryColor.withAlpha((0.3 * 255).round()),
-                    blurRadius: 12,
-                    offset: const Offset(0, 4),
-                  ),
-                ]
-              : [
-                  BoxShadow(
-                    color: Colors.grey.withAlpha((0.1 * 255).round()),
-                    blurRadius: 4,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
+          border: Border.all(color: isSelected ? Theme.of(context).primaryColor : Colors.grey[300]!, width: 2),
         ),
         child: Column(
           children: [
-            Icon(
-              isSelected ? Icons.check_circle : Icons.circle_outlined,
-              size: 20,
-              color: isSelected ? Colors.white : Colors.grey[600],
-            ),
+            Icon(isSelected ? Icons.check_circle : Icons.circle_outlined, size: 20, color: isSelected ? Colors.white : Colors.grey[600]),
             const SizedBox(height: 8),
-            Text(
-              category.label,
-              style: TextStyle(
-                color: isSelected ? Colors.white : Colors.grey[800],
-                fontWeight: FontWeight.w600,
-                fontSize: 16,
-              ),
-            ),
+            Text(category.label, style: TextStyle(color: isSelected ? Colors.white : Colors.grey[800], fontWeight: FontWeight.w600, fontSize: 16)),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildPostTypeCard({
-    required String title,
-    required IconData icon,
-    required bool isSelected,
-    required VoidCallback onTap,
-  }) {
+  Widget _buildPostTypeCard({required String title, required IconData icon, required bool isSelected, required VoidCallback onTap}) {
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(12),
@@ -405,46 +374,13 @@ class _PostsPageState extends State<PostsPage> {
         decoration: BoxDecoration(
           color: isSelected ? Theme.of(context).primaryColor : Colors.white,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: isSelected
-                ? Theme.of(context).primaryColor
-                : Colors.grey[300]!,
-            width: 2,
-          ),
-          boxShadow: isSelected
-              ? [
-                  BoxShadow(
-                    color: Theme.of(
-                      context,
-                    ).primaryColor.withAlpha((0.3 * 255).round()),
-                    blurRadius: 12,
-                    offset: const Offset(0, 4),
-                  ),
-                ]
-              : [
-                  BoxShadow(
-                    color: Colors.grey.withAlpha((0.1 * 255).round()),
-                    blurRadius: 4,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
+          border: Border.all(color: isSelected ? Theme.of(context).primaryColor : Colors.grey[300]!, width: 2),
         ),
         child: Column(
           children: [
-            Icon(
-              icon,
-              size: 32,
-              color: isSelected ? Colors.white : Colors.grey[700],
-            ),
+            Icon(icon, size: 32, color: isSelected ? Colors.white : Colors.grey[700]),
             const SizedBox(height: 8),
-            Text(
-              title,
-              style: TextStyle(
-                color: isSelected ? Colors.white : Colors.grey[800],
-                fontWeight: FontWeight.w600,
-                fontSize: 16,
-              ),
-            ),
+            Text(title, style: TextStyle(color: isSelected ? Colors.white : Colors.grey[800], fontWeight: FontWeight.w600, fontSize: 16)),
           ],
         ),
       ),

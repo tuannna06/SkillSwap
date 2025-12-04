@@ -12,8 +12,7 @@ import 'package:cs222_final/features/profile/presentation/bloc/profile_state.dar
 class ProfilePage extends StatefulWidget {
   final String userId;
 
-  // CORRECT
-  const ProfilePage({super.key, required this.userId}); 
+  const ProfilePage({super.key, required this.userId});
 
   @override
   State<ProfilePage> createState() => _ProfilePageState();
@@ -21,6 +20,8 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage> {
   bool isEditing = false;
+  
+  int _currentRating = 0; 
 
   // Controllers for editable fields
   final phoneController = TextEditingController();
@@ -80,9 +81,9 @@ class _ProfilePageState extends State<ProfilePage> {
     final authState = context.read<AuthBloc>().state;
     String? currentUserId;
     if (authState is Authenticated) {
-      currentUserId = authState.user.uid; // Assuming 'uid' is your ID field in AuthUser
+      currentUserId = authState.user.uid;
     }
-    
+
     // 2. CHECK IF THIS IS MY PROFILE
     final bool isOwnProfile = currentUserId == widget.userId;
 
@@ -111,8 +112,7 @@ class _ProfilePageState extends State<ProfilePage> {
             ),
             const SizedBox(height: 16),
 
-            // 3. ONLY SHOW EDIT BUTTON IF IS OWN PROFILE
-            if (isOwnProfile) 
+            if (isOwnProfile)
               Align(
                 alignment: Alignment.centerRight,
                 child: TextButton.icon(
@@ -126,12 +126,16 @@ class _ProfilePageState extends State<ProfilePage> {
 
             const SizedBox(height: 8),
 
-            // Pass isOwnProfile down if you want extra safety in the widget
-            _buildEditableInfo(context, user), 
-            
+            _buildEditableInfo(context, user),
+
             const SizedBox(height: 24),
 
-            // 4. ONLY SHOW SIGN OUT BUTTON IF IS OWN PROFILE
+            // rating system
+            if (!isOwnProfile) ...[
+              _buildRatingSection(),
+              const SizedBox(height: 24),
+            ],
+
             if (isOwnProfile)
               SizedBox(
                 width: double.infinity,
@@ -147,6 +151,53 @@ class _ProfilePageState extends State<ProfilePage> {
                   child: const Text('Sign Out', style: TextStyle(fontSize: 16)),
                 ),
               ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // rating widget
+  Widget _buildRatingSection() {
+    return Card(
+      elevation: 2,
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            const Text(
+              'Rate this User',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 8),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: List.generate(5, (index) {
+                return IconButton(
+                  iconSize: 32,
+                  icon: Icon(
+                    index < _currentRating ? Icons.star : Icons.star_border,
+                    color: Colors.amber,
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      _currentRating = index + 1;
+                    });
+                  },
+                );
+              }),
+            ),
+            const SizedBox(height: 8),
+            ElevatedButton(
+              onPressed: _currentRating == 0 
+                  ? null // Disable if 0 stars
+                  : () {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('You rated this user $_currentRating stars!')),
+                      );
+                    },
+              child: const Text('Submit Rating'),
+            ),
           ],
         ),
       ),

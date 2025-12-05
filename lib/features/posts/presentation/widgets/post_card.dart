@@ -7,8 +7,8 @@ class PostCard extends StatelessWidget {
   final VoidCallback? onTap; // Tapping the whole card
   final VoidCallback? onProfileTap; // 1. ADD THIS VARIABLE
   final String username;
-  
-  // Removed "final isRequested = false" because StatelessWidgets cannot hold state like that. 
+
+  // Removed "final isRequested = false" because StatelessWidgets cannot hold state like that.
   // You handled this correctly in the RequestButton class below anyway.
 
   const PostCard({
@@ -43,66 +43,66 @@ class PostCard extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    _buildAuthorInfo(),
-                    Row(
-                      children: [
-                        _buildPostCategoryBadge(),
-                        const SizedBox(width: 4),
-                        _buildPostTypeBadge(),
-                      ],
+                    Flexible(child: _buildAuthorInfo()),
+                    const SizedBox(width: 8),
+                    Flexible(
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Flexible(child: _buildPostCategoryBadge()),
+                          const SizedBox(width: 4),
+                          Flexible(child: _buildPostTypeBadge()),
+                        ],
+                      ),
                     ),
                   ],
                 ),
 
                 const SizedBox(height: 16),
 
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Title
-                        Text(
-                          post.title,
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w600,
-                            letterSpacing: -0.2,
-                            height: 1.3,
-                          ),
-                        ),
-
-                        const SizedBox(height: 8),
-
-                        // Description
-                        if (post.description != null && post.description!.isNotEmpty)
-                          Text(
-                            post.description!,
-                            style: TextStyle(
-                              fontSize: 15,
-                              color: Colors.grey.shade700,
-                              height: 1.4,
-                            ),
-                            maxLines: 3,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-
-                        const SizedBox(height: 16),
-                        Text(
-                          '${post.isRequest ? 'Skills Needed: ' : 'Skill Offered: '}${post.neededSkills.isEmpty ? 'None' : post.neededSkills.join(', ')}',
-                        ),
-
-                        const SizedBox(height: 16),
-                        Text(
-                          'Location: ${post.location?.isNotEmpty ?? false ? post.location : 'N/A'}',
-                        ),
-                      ],
-                    ),
-
-                    if (this.username != post.authorName) const RequestButton(),
-                  ],
+                // Title
+                Text(
+                  post.title,
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: -0.2,
+                    height: 1.3,
+                  ),
                 ),
+
+                const SizedBox(height: 8),
+
+                // Description
+                if (post.description != null && post.description!.isNotEmpty)
+                  Text(
+                    post.description!,
+                    style: TextStyle(
+                      fontSize: 15,
+                      color: Colors.grey.shade700,
+                      height: 1.4,
+                    ),
+                    maxLines: 3,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+
+                const SizedBox(height: 16),
+                Text(
+                  '${post.isRequest ? 'Skills Needed: ' : 'Skill Offered: '}${post.neededSkills.isEmpty ? 'None' : post.neededSkills.join(', ')}',
+                ),
+
+                const SizedBox(height: 16),
+                Text(
+                  'Location: ${post.location?.isNotEmpty ?? false ? post.location : 'N/A'}',
+                ),
+
+                if (this.username != post.authorName) ...[
+                  const SizedBox(height: 16),
+                  const Align(
+                    alignment: Alignment.centerRight,
+                    child: RequestButton(),
+                  ),
+                ],
               ],
             ),
           ),
@@ -114,8 +114,9 @@ class PostCard extends StatelessWidget {
   Widget _buildAuthorInfo() {
     // 3. WRAP THIS ROW IN GESTURE DETECTOR
     return GestureDetector(
-      onTap: onProfileTap, 
-      behavior: HitTestBehavior.opaque, // Ensures the empty space between text/avatar is also clickable
+      onTap: onProfileTap,
+      behavior: HitTestBehavior
+          .opaque, // Ensures the empty space between text/avatar is also clickable
       child: Row(
         children: [
           CircleAvatar(
@@ -138,7 +139,10 @@ class PostCard extends StatelessWidget {
             children: [
               Text(
                 post.authorName,
-                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
               Text(
                 _formatTimestamp(post.timestamp),

@@ -8,6 +8,8 @@ import 'package:cs222_final/features/profile/domain/entities/user_entity.dart';
 import 'package:cs222_final/features/profile/presentation/bloc/profile_bloc.dart';
 import 'package:cs222_final/features/profile/presentation/bloc/profile_event.dart';
 import 'package:cs222_final/features/profile/presentation/bloc/profile_state.dart';
+import 'package:cs222_final/features/messages/data/datasources/messages_remote_data_source.dart';
+import 'package:cs222_final/features/messages/presentation/pages/create_messages_page.dart';
 
 class ProfilePage extends StatefulWidget {
   final String userId;
@@ -133,6 +135,35 @@ class _ProfilePageState extends State<ProfilePage> {
             // rating system
             if (!isOwnProfile) ...[
               _buildRatingSection(),
+              const SizedBox(height: 12),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  icon: const Icon(Icons.message),
+                  label: const Text('Message'),
+                  onPressed: () async {
+                    if (currentUserId == null) {
+                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please sign in to message')));
+                      return;
+                    }
+
+                    final messagesRemote = MessagesRemoteDataSource();
+                    try {
+                      final convId = await messagesRemote.createOrGetConversation(participantIds: [currentUserId, widget.userId]);
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => CreateMessagesPage(
+                          userId: widget.userId,
+                          username: user.name ?? '',
+                          conversationId: convId,
+                        )),
+                      );
+                    } catch (e) {
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to open conversation: $e')));
+                    }
+                  },
+                ),
+              ),
               const SizedBox(height: 24),
             ],
 

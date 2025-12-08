@@ -52,9 +52,12 @@ class MessagesRemoteDataSource {
     for (String participantId in participantIds) {
       final userDoc = await userCollection.doc(participantId).get();
       if (userDoc.exists) {
+        // Use data() and null-safe access because calling get()/indexing can throw
+        // if the field is missing. Coerce to map and provide defaults.
+        final userData = userDoc.data() as Map?;
         participantDetails[participantId] = {
-          'name': userDoc['name'],
-          'photoUrl': userDoc['photoUrl'],
+          'name': userData?['name'] ?? '',
+          'photoUrl': userData?['photoUrl'] ?? '',
         };
       } else {
         return Future.error('User $participantId not found');

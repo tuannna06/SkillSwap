@@ -9,11 +9,23 @@ class MessagesRepositoryImpl implements MessagesRepository {
 
   @override
   Future<List<Messages>> getMessages(String conversationId) async {
-    throw UnimplementedError();
+    // Use the remote data source stream and take the current snapshot
+    final stream = messagesRemoteDataSource.getConversations(conversationId);
+    final list = await stream.first; // first emission
+    return list
+        .map((m) => Messages.fromMap({
+              'senderId': m['senderId'],
+              'text': m['text'],
+              'timestamp': m['timestamp'],
+            },
+            m['id']))
+        .toList();
   }
 
   @override
-  Future<void> sendMessage(String conversationId, Messages message) async {}
+  Future<void> sendMessage(String conversationId, Messages message) async {
+    await messagesRemoteDataSource.sendMessage(conversationId, message.toMap());
+  }
 
 
 }

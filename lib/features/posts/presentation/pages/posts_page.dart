@@ -27,6 +27,11 @@ import 'package:cs222_final/features/profile/data/repositories/profile_repositor
 // 3. The Repository Interface (Vital for RepositoryProvider to work)
 import 'package:cs222_final/features/profile/domain/repositories/profile_repository.dart';
 
+// --- RATINGS FEATURE IMPORTS ---
+import 'package:cs222_final/features/ratings/presentation/bloc/ratings_bloc.dart';
+import 'package:cs222_final/features/ratings/data/repositories/ratings_repository_impl.dart';
+
+
 class PostsPage extends StatefulWidget {
   const PostsPage({super.key});
 
@@ -176,18 +181,26 @@ class _PostsPageState extends State<PostsPage> {
                     final datasource = ProfileRemoteDatasource();
                     final repository = ProfileRepositoryImpl(datasource);
 
-                    // 2. Wrap everything in BlocProvider.value to pass the AuthBloc
-                    return BlocProvider.value(
-                      value: authBloc,
-                      child: RepositoryProvider<ProfileRepository>(
-                        create: (context) => repository,
-                        child: BlocProvider(
+                    // 2. Wrap everything in MultiBlocProvider to pass required blocs
+                    return MultiBlocProvider(
+                      providers: [
+                        BlocProvider.value(value: authBloc),
+                        BlocProvider(
                           create: (context) => ProfileBloc(
                             repository: repository,
                           ),
-                          child: ProfilePage(
-                            userId: post.authorId,
+                        ),
+                        BlocProvider(
+                          create: (context) => RatingsBloc(
+                            ratingsRepository: RatingsRepositoryImpl(),
+                            authBloc: authBloc,
                           ),
+                        ),
+                      ],
+                      child: RepositoryProvider<ProfileRepository>(
+                        create: (context) => repository,
+                        child: ProfilePage(
+                          userId: post.authorId,
                         ),
                       ),
                     );

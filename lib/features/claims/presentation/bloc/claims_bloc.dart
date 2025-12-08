@@ -23,6 +23,11 @@ class ClaimsBloc extends Bloc<ClaimsEvent, ClaimsState> {
     on<LoadClaimsForPost>(_onLoadClaimsForPost);
   }
 
+
+  Future<bool> hasUserClaimedPost(String userId, String postId) {
+    return _claimsRepository.hasUserClaimedPost(userId, postId);
+  }
+
   void _onClaimsUpdated(_ClaimsUpdated event, Emitter<ClaimsState> emit) {
     emit(ClaimsLoaded(event.claims.cast<ClaimEntity>()));
   }

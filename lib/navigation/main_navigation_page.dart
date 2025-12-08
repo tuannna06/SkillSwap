@@ -1,7 +1,6 @@
 import 'package:cs222_final/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:cs222_final/features/auth/presentation/bloc/auth_state.dart';
 import 'package:flutter/material.dart';
-import 'package:cs222_final/features/home/presentation/pages/home_page.dart';
 import 'package:cs222_final/features/messages/presentation/pages/messages_page.dart';
 import 'package:cs222_final/features/notifications/presentation/pages/notifications_page.dart';
 import 'package:cs222_final/features/posts/presentation/pages/posts_page.dart';
@@ -22,7 +21,6 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
     final authState = context.read<AuthBloc>().state;
     final userId = authState is Authenticated ? authState.user.uid : "";
     return [
-      HomePage(),
       PostsPage(),
       ProfilePage(userId: userId),
       NotificationsPage(),
@@ -49,11 +47,6 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
         type: BottomNavigationBarType.fixed,
         backgroundColor: Colors.white,
         items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home_outlined),
-            activeIcon: Icon(Icons.home),
-            label: 'Home',
-          ),
           BottomNavigationBarItem(
             icon: Icon(Icons.add_box_outlined),
             activeIcon: Icon(Icons.add_box),

@@ -1,12 +1,19 @@
 import 'package:cs222_final/features/posts/domain/entities/post_category.dart';
 import 'package:flutter/material.dart';
 import 'package:cs222_final/features/posts/domain/entities/post_entity.dart';
+//Import claims bloc for checking if user has claimed post
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:cs222_final/features/claims/presentation/bloc/claims_bloc.dart';
+import 'package:cs222_final/features/claims/presentation/bloc/claims_event.dart';
+import 'package:cs222_final/features/claims/presentation/bloc/claims_state.dart';
+import 'package:cs222_final/features/claims/domain/entities/claim_entity.dart';
 
 class PostCard extends StatelessWidget {
   final PostEntity post;
   final VoidCallback? onTap; // Tapping the whole card
   final VoidCallback? onProfileTap; // 1. ADD THIS VARIABLE
   final String username;
+  final String currentUserId;
 
   // Removed "final isRequested = false" because StatelessWidgets cannot hold state like that.
   // You handled this correctly in the RequestButton class below anyway.
@@ -15,6 +22,7 @@ class PostCard extends StatelessWidget {
     super.key,
     required this.post,
     required this.username,
+    required this.currentUserId,
     this.onTap,
     this.onProfileTap, // 2. FIX CONSTRUCTOR
   });
@@ -98,9 +106,15 @@ class PostCard extends StatelessWidget {
 
                 if (this.username != post.authorName) ...[
                   const SizedBox(height: 16),
-                  const Align(
+                  Align(
                     alignment: Alignment.centerRight,
-                    child: RequestButton(),
+                    child: RequestButton(
+                      postId: post.postId,
+                      postTitle: post.title,
+                      postAuthorId: post.authorId,
+                      currentUserId: currentUserId,
+                      currentUserName: username,
+                    ),
                   ),
                 ],
               ],
@@ -213,28 +227,68 @@ class PostCard extends StatelessWidget {
 }
 
 class RequestButton extends StatefulWidget {
-  const RequestButton({super.key});
+  const RequestButton({
+    super.key,
+    required this.postId,
+    required this.postTitle,
+    required this.postAuthorId,
+    required this.currentUserId,
+    required this.currentUserName,
+  });
+
+  final String postId;
+  final String postTitle;
+  final String postAuthorId;
+  final String currentUserId;
+  final String currentUserName;
 
   @override
   State<RequestButton> createState() => _RequestButtonState();
 }
 
 class _RequestButtonState extends State<RequestButton> {
-  bool isRequested = false;
+  bool _hasChecked = false;
+  bool _isRequested = false;
 
   @override
   Widget build(BuildContext context) {
-    return ElevatedButton(
-      onPressed: () {
-        setState(() {
-          isRequested = true;
-        });
+    if (!_hasChecked) {
+      _hasChecked = true;
+      context.read<ClaimsBloc>().add(
+        CheckIfUserClaimedPost(
+          userId: widget.currentUserId,
+          postId: widget.postId,
+        ),
+      );
+    }
+    return BlocListener<ClaimsBloc, ClaimsState>(
+      listener: (context, state) {
+        if (state is UserClaimStatus && state.postId == widget.postId && state.hasClaimed) {
+          setState(() {
+            _isRequested = true;
+          });
+        }
       },
-      style: ElevatedButton.styleFrom(
-        backgroundColor: isRequested ? Colors.grey : Colors.red,
-        foregroundColor: Colors.white,
+      child: ElevatedButton(
+        onPressed: _isRequested ? null : () {
+          final claim = ClaimEntity(
+            id: DateTime.now().millisecondsSinceEpoch.toString(),
+            postId: widget.postId,
+            postTitle: widget.postTitle,
+            claimerId: widget.currentUserId,
+            claimerName: widget.currentUserName,
+            postAuthorId: widget.postAuthorId,
+            timestamp: DateTime.now(),
+          );
+         context.read<ClaimsBloc>().add(CreateClaim(claim));
+         setState(() => _isRequested = true);
+        },
+        style: ElevatedButton.styleFrom(
+          backgroundColor: _isRequested ? Colors.grey : Colors.red,
+          foregroundColor: Colors.white,
+        ),
+        child: Text(_isRequested ? "REQUESTED" : "CLAIM"),
       ),
-      child: Text(isRequested ? "REQUESTED" : "CLAIM"),
     );
   }
 }

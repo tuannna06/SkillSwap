@@ -195,6 +195,8 @@ class _PostsPageState extends State<PostsPage> {
                 ),
               );
             },
+            currentUserId:
+                (context.read<AuthBloc>().state as Authenticated).user.uid,
             // -----------------------------
           );
         }).toList(),

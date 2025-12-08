@@ -17,6 +17,10 @@ import 'features/profile/data/repositories/profile_repository_impl.dart';
 import 'features/profile/presentation/bloc/profile_bloc.dart';
 import 'firebase_options.dart';
 
+//Claim logic imports
+import 'features/claims/data/repositories/claims_repository_impl.dart';
+import 'features/claims/presentation/bloc/claims_bloc.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
@@ -47,6 +51,11 @@ class MyApp extends StatelessWidget {
           BlocProvider(
             create: (context) => AuthBloc(
               repository: AuthRepositoryImpl(AuthRemoteDataSource()),
+            ),
+          ),
+          BlocProvider(
+            create: (context) => ClaimsBloc(
+              claimsRepository: ClaimsRepositoryImpl(),
             ),
           ),
         ],

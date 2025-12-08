@@ -21,6 +21,10 @@ import 'firebase_options.dart';
 import 'features/claims/data/repositories/claims_repository_impl.dart';
 import 'features/claims/presentation/bloc/claims_bloc.dart';
 
+//Ratings logic imports
+import 'features/ratings/data/repositories/ratings_repository_impl.dart';
+import 'features/ratings/presentation/bloc/ratings_bloc.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
@@ -56,6 +60,12 @@ class MyApp extends StatelessWidget {
           BlocProvider(
             create: (context) => ClaimsBloc(
               claimsRepository: ClaimsRepositoryImpl(),
+            ),
+          ),
+          BlocProvider(
+            create: (context) => RatingsBloc(
+              ratingsRepository: RatingsRepositoryImpl(),
+              authBloc: context.read<AuthBloc>(),
             ),
           ),
         ],

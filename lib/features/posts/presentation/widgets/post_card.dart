@@ -247,42 +247,71 @@ class RequestButton extends StatefulWidget {
 }
 
 class _RequestButtonState extends State<RequestButton> {
-  bool _hasChecked = false;
   bool _isRequested = false;
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkClaimStatus();
+  }
+
+  void _checkClaimStatus() {
+    // Access the BLoC through context after the first frame
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      context.read<ClaimsBloc>().hasUserClaimedPost(
+        widget.currentUserId,
+        widget.postId,
+      ).then((hasClaimed) {
+        if (mounted) {
+          setState(() {
+            _isRequested = hasClaimed;
+            _isLoading = false;
+          });
+        }
+      });
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    if (!_hasChecked) {
-      _hasChecked = true;
-      context.read<ClaimsBloc>().add(
-        CheckIfUserClaimedPost(
-          userId: widget.currentUserId,
-          postId: widget.postId,
+    if (_isLoading) {
+      return const SizedBox(
+        width: 100,
+        height: 36,
+        child: Center(
+          child: SizedBox(
+            width: 20,
+            height: 20,
+            child: CircularProgressIndicator(strokeWidth: 2),
+          ),
         ),
       );
     }
+
     return BlocListener<ClaimsBloc, ClaimsState>(
       listener: (context, state) {
-        if (state is UserClaimStatus && state.postId == widget.postId && state.hasClaimed) {
-          setState(() {
-            _isRequested = true;
-          });
+        if (state is ClaimCreated) {
+          // Claim was successfully created
         }
       },
       child: ElevatedButton(
-        onPressed: _isRequested ? null : () {
-          final claim = ClaimEntity(
-            id: DateTime.now().millisecondsSinceEpoch.toString(),
-            postId: widget.postId,
-            postTitle: widget.postTitle,
-            claimerId: widget.currentUserId,
-            claimerName: widget.currentUserName,
-            postAuthorId: widget.postAuthorId,
-            timestamp: DateTime.now(),
-          );
-         context.read<ClaimsBloc>().add(CreateClaim(claim));
-         setState(() => _isRequested = true);
-        },
+        onPressed: _isRequested
+            ? null
+            : () {
+                final claim = ClaimEntity(
+                  id: '${widget.currentUserId}_${widget.postId}',
+                  postId: widget.postId,
+                  postTitle: widget.postTitle,
+                  claimerId: widget.currentUserId,
+                  claimerName: widget.currentUserName,
+                  postAuthorId: widget.postAuthorId,
+                  timestamp: DateTime.now(),
+                );
+                context.read<ClaimsBloc>().add(CreateClaim(claim));
+                setState(() => _isRequested = true);
+              },
         style: ElevatedButton.styleFrom(
           backgroundColor: _isRequested ? Colors.grey : Colors.red,
           foregroundColor: Colors.white,

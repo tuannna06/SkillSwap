@@ -8,6 +8,9 @@ import 'package:cs222_final/features/profile/domain/entities/user_entity.dart';
 import 'package:cs222_final/features/profile/presentation/bloc/profile_bloc.dart';
 import 'package:cs222_final/features/profile/presentation/bloc/profile_event.dart';
 import 'package:cs222_final/features/profile/presentation/bloc/profile_state.dart';
+import 'package:cs222_final/features/ratings/presentation/bloc/ratings_bloc.dart';
+import 'package:cs222_final/features/ratings/presentation/bloc/ratings_event.dart';
+import 'package:cs222_final/features/ratings/presentation/bloc/ratings_state.dart';
 
 class ProfilePage extends StatefulWidget {
   final String userId;
@@ -21,13 +24,44 @@ class ProfilePage extends StatefulWidget {
 class _ProfilePageState extends State<ProfilePage> {
   bool isEditing = false;
   
-  int _currentRating = 0; 
+  int _currentRating = 0;
+  bool _isLoadingRating = true;
+  bool _isSubmittingRating = false;
 
   // Controllers for editable fields
   final phoneController = TextEditingController();
   final addressController = TextEditingController();
   final skillController = TextEditingController();
   final List<String> skills = [];
+
+  @override
+  void initState() {
+    super.initState();
+    // Load existing rating if viewing someone else's profile
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadExistingRating();
+    });
+  }
+
+  void _loadExistingRating() {
+    final authState = context.read<AuthBloc>().state;
+    if (authState is Authenticated && authState.user.uid != widget.userId) {
+      // Use direct method for immediate result
+      context.read<RatingsBloc>().getUserRatingForUser(widget.userId).then((rating) {
+        if (mounted) {
+          setState(() {
+            if (rating != null) {
+              _currentRating = rating;
+            }
+            _isLoadingRating = false;
+          });
+        }
+      });
+    } else {
+      // Own profile, no rating to load
+      setState(() => _isLoadingRating = false);
+    }
+  }
 
   @override
   void dispose() {
@@ -110,6 +144,21 @@ class _ProfilePageState extends State<ProfilePage> {
               user.name ?? "No name",
               style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
+            const SizedBox(height: 8),
+
+            // Average Rating Display
+            if (user.totalRatingsCount > 0)
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.star, color: Colors.amber, size: 20),
+                  const SizedBox(width: 4),
+                  Text(
+                    '${user.averageRating.toStringAsFixed(1)} (${user.totalRatingsCount} ${user.totalRatingsCount == 1 ? 'review' : 'reviews'})',
+                    style: TextStyle(fontSize: 14, color: Colors.grey.shade700),
+                  ),
+                ],
+              ),
             const SizedBox(height: 16),
 
             if (isOwnProfile)
@@ -159,50 +208,97 @@ class _ProfilePageState extends State<ProfilePage> {
 
   // rating widget
   Widget _buildRatingSection() {
-    return Card(
-      elevation: 2,
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            const Text(
-              'Rate this User',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+    return BlocConsumer<RatingsBloc, RatingsState>(
+      listener: (context, state) {
+        if (state is RatingSubmitting) {
+          setState(() => _isSubmittingRating = true);
+        }
+        if (state is RatingSubmitted) {
+          setState(() => _isSubmittingRating = false);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('You rated this user $_currentRating stars!')),
+          );
+          // Reload the profile to get updated averageRating
+          context.read<ProfileBloc>().add(ProfileReloadRequested(widget.userId));
+        }
+        if (state is RatingsError) {
+          setState(() => _isSubmittingRating = false);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(state.message)),
+          );
+        }
+      },
+      builder: (context, state) {
+        if (_isLoadingRating) {
+          return const Card(
+            elevation: 2,
+            child: Padding(
+              padding: EdgeInsets.all(16.0),
+              child: Center(
+                child: CircularProgressIndicator(),
+              ),
             ),
-            const SizedBox(height: 8),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: List.generate(5, (index) {
-                return IconButton(
-                  iconSize: 32,
-                  icon: Icon(
-                    index < _currentRating ? Icons.star : Icons.star_border,
-                    color: Colors.amber,
-                  ),
-                  onPressed: () {
-                    setState(() {
-                      _currentRating = index + 1;
-                    });
-                  },
-                );
-              }),
+          );
+        }
+        
+        return Card(
+          elevation: 2,
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              children: [
+                const Text(
+                  'Rate this User',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: List.generate(5, (index) {
+                    return IconButton(
+                      iconSize: 32,
+                      icon: Icon(
+                        index < _currentRating ? Icons.star : Icons.star_border,
+                        color: Colors.amber,
+                      ),
+                      onPressed: _isSubmittingRating
+                          ? null
+                          : () {
+                              setState(() {
+                                _currentRating = index + 1;
+                              });
+                            },
+                    );
+                  }),
+                ),
+                const SizedBox(height: 8),
+                _isSubmittingRating
+                    ? const SizedBox(
+                        width: 24,
+                        height: 24,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : ElevatedButton(
+                        onPressed: _currentRating == 0
+                            ? null
+                            : () {
+                                context.read<RatingsBloc>().add(
+                                      SubmitRating(
+                                        ratedUserId: widget.userId,
+                                        rating: _currentRating,
+                                      ),
+                                    );
+                              },
+                        child: const Text('Submit Rating'),
+                      ),
+              ],
             ),
-            const SizedBox(height: 8),
-            ElevatedButton(
-              onPressed: _currentRating == 0 
-                  ? null // Disable if 0 stars
-                  : () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('You rated this user $_currentRating stars!')),
-                      );
-                    },
-              child: const Text('Submit Rating'),
-            ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
+
 
   Widget _buildEditableInfo(BuildContext context, UserEntity user) {
     return Card(

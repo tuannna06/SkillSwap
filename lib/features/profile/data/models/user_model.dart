@@ -8,6 +8,8 @@ class UserModel extends UserEntity {
     super.phone,
     super.address,
     super.offeredSkills = const [],
+    super.averageRating = 0.0,
+    super.totalRatingsCount = 0,
   });
 
   Map<String, dynamic> toMap() {
@@ -17,6 +19,8 @@ class UserModel extends UserEntity {
       'phone': phone,
       'address': address,
       'offeredSkills': offeredSkills,
+      'averageRating': averageRating,
+      'totalRatingsCount': totalRatingsCount,
     };
   }
 
@@ -28,6 +32,8 @@ class UserModel extends UserEntity {
       phone: map['phone'],
       address: map['address'],
       offeredSkills: List<String>.from(map['offeredSkills'] ?? []),
+      averageRating: (map['averageRating'] ?? 0.0).toDouble(),
+      totalRatingsCount: map['totalRatingsCount'] ?? 0,
     );
   }
 }

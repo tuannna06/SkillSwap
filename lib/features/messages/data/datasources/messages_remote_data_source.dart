@@ -119,22 +119,22 @@ class MessagesRemoteDataSource {
         .add(messageData);
   }
 
-  Stream<List<Map<String, dynamic>>> getConversations(String conversationId) {
-    return conversationCollection
+  /// Fetch all messages for a conversation once (not a stream).
+  Future<List<Map<String, dynamic>>> getConversation(String conversationId) async {
+    final querySnapshot = await conversationCollection
         .doc(conversationId)
         .collection('messages')
         .orderBy('timestamp', descending: true)
-        .snapshots()
-        .map(
-          (snapshot) => snapshot.docs.map((doc) {
-            final data = doc.data();
-            return {
-              'id': doc.id,
-              'text': data['text'],
-              'senderId': data['senderId'],
-              'timestamp': data['timestamp'],
-            };
-          }).toList(),
-        );
+        .get();
+
+    return querySnapshot.docs.map((doc) {
+      final data = doc.data();
+      return {
+        'id': doc.id,
+        'text': data['text'],
+        'senderId': data['senderId'],
+        'timestamp': data['timestamp'],
+      };
+    }).toList();
   }
 }

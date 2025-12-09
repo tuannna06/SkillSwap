@@ -26,20 +26,19 @@ class _CreateMessagesPageState extends State<CreateMessagesPage> {
   final TextEditingController _controller = TextEditingController();
   final MessagesRemoteDataSource _remote = MessagesRemoteDataSource();
   final List<Map<String, dynamic>> _messages = [];
-  StreamSubscription<List<Map<String, dynamic>>>? _messagesSub;
   IO.Socket? _socket;
 
   String? _currentUserId;
+  bool _intentionalDisconnect = false;
+  // Tracks which peer's room we've already joined on the current socket connection
+  String? _joinedPeerId;
 
   @override
   void initState() {
     super.initState();
     final user = FirebaseAuth.instance.currentUser;
     _currentUserId = user?.uid;
-
-    // subscribe to Firestore messages stream
-    _messagesSub = _remote.getConversations(widget.conversationId).listen((list) {
-      // list is in descending timestamp order per remote data source
+    _remote.getConversation(widget.conversationId).then((list) {
       setState(() {
         _messages.clear();
         for (final m in list) {
@@ -51,21 +50,101 @@ class _CreateMessagesPageState extends State<CreateMessagesPage> {
           });
         }
       });
+    }).catchError((e) {
+      // ignore load error for now or optionally show a snackbar
     });
 
     _setupSocket();
   }
 
-  void _setupSocket() {
-    try {
-      _socket = IO.io('http://localhost:5000', IO.OptionBuilder().setTransports(['websocket']).build());
-      _socket?.on('connect', (_) {
-        // join room for this conversation
-        if (_currentUserId != null) {
+  @override
+  void didUpdateWidget(covariant CreateMessagesPage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // If the conversation or peer changed, reload messages once and rejoin the room.
+    if (oldWidget.conversationId != widget.conversationId || oldWidget.userId != widget.userId) {
+      // reload messages for the new conversation
+      _remote.getConversation(widget.conversationId).then((list) {
+        setState(() {
+          _messages.clear();
+          for (final m in list) {
+            _messages.add({
+              'id': m['id'],
+              'senderId': m['senderId'],
+              'text': m['text'],
+              'timestamp': m['timestamp'],
+            });
+          }
+        });
+      }).catchError((_) {});
+
+      // ensure socket exists and is connected; if not, set it up
+      if (_socket == null || !(_socket?.connected ?? false)) {
+        _setupSocket();
+      } else if (_currentUserId != null && _joinedPeerId != widget.userId) {
+        // already connected but switching peer: emit join for the new peer
+        try {
           _socket?.emit('join_chat', {
             'my_id': _currentUserId,
             'other_id': widget.userId,
           });
+          _joinedPeerId = widget.userId;
+        } catch (_) {}
+      }
+    }
+  }
+
+  void _setupSocket() {
+    try {
+      // if there's an existing socket instance, disconnect and remove listeners
+      if (_socket != null) {
+        try {
+          _socket?.off('connect');
+          _socket?.off('receive_message');
+          _socket?.off('connect_error');
+          _socket?.off('disconnect');
+        } catch (_) {}
+        try {
+          _socket?.disconnect();
+        } catch (_) {}
+      }
+
+      // creating a fresh socket -> not an intentional disconnect, reset joined peer
+      _intentionalDisconnect = false;
+      _joinedPeerId = null;
+
+      _socket = IO.io('http://localhost:5000', <String, dynamic>{
+        'transports': ['websocket', 'polling'],
+        'reconnection': true,
+        'reconnectionAttempts': 10,
+        'reconnectionDelay': 1000,
+      });
+
+      _socket?.on('connect', (_) {
+        // join room for this conversation only if we haven't already joined this peer
+        if (_currentUserId != null && _joinedPeerId != widget.userId) {
+          _socket?.emit('join_chat', {
+            'my_id': _currentUserId,
+            'other_id': widget.userId,
+          });
+          _joinedPeerId = widget.userId;
+        }
+      });
+
+      _socket?.on('connect_error', (err) {
+        // connection failed; only attempt reconnect when not intentionally disconnected
+        if (!_intentionalDisconnect) {
+          try {
+            _socket?.connect();
+          } catch (_) {}
+        }
+      });
+
+      _socket?.on('disconnect', (reason) {
+        // only auto-reconnect when this wasn't an intentional disconnect
+        if (!_intentionalDisconnect) {
+          try {
+            _socket?.connect();
+          } catch (_) {}
         }
       });
 
@@ -83,6 +162,11 @@ class _CreateMessagesPageState extends State<CreateMessagesPage> {
           });
         });
       });
+
+      // ensure it attempts to connect
+      try {
+        _socket?.connect();
+      } catch (_) {}
     } catch (e) {
       // ignore socket setup errors for now
     }
@@ -90,8 +174,11 @@ class _CreateMessagesPageState extends State<CreateMessagesPage> {
 
   @override
   void dispose() {
-    _messagesSub?.cancel();
-    _socket?.dispose();
+    // mark intentional disconnect to avoid auto-reconnect when leaving the chat
+    _intentionalDisconnect = true;
+    try {
+      _socket?.disconnect();
+    } catch (_) {}
     _controller.dispose();
     super.dispose();
   }

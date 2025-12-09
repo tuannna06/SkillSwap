@@ -9,9 +9,8 @@ class MessagesRepositoryImpl implements MessagesRepository {
 
   @override
   Future<List<Messages>> getMessages(String conversationId) async {
-    // Use the remote data source stream and take the current snapshot
-    final stream = messagesRemoteDataSource.getConversations(conversationId);
-    final list = await stream.first; // first emission
+    // Fetch messages once from remote data source
+    final list = await messagesRemoteDataSource.getConversation(conversationId);
     return list
         .map((m) => Messages.fromMap({
               'senderId': m['senderId'],
